@@ -57,10 +57,53 @@ and it is why this belongs on Creditcoin specifically.
 
 ---
 
-## Attestcoin Protocol integration
+## Attestcoin Protocol Integration Summary
 
-*Depth of Attestcoin utilization is the stated core scoring criterion, so this section is
-the most specific one here.*
+*(This is a separate form field from Project Description. Paste this there.)*
+
+MintBound holds mint authority over a wrapped asset and will not exercise it unless the
+Attestcoin Protocol has cryptographically verified, inside the minting transaction, that
+the backing exists. The protocol is not a checkpoint here — remove either precompile and
+there is no product, because Attestcoin is the guard's only source of truth about the
+source chain.
+
+Six integration points feed one on-chain invariant:
+
+1. **State-to-event lifting.** The Block Prover proves *transactions*; solvency is a
+   question about *state*. A permissionless function makes the vault emit its own balance
+   into a log, so the balance becomes a fact about a transaction and therefore provable.
+   This generalises — it turns a transaction oracle into a state oracle usable by any dApp
+   on Creditcoin.
+2. **Per-mint verification via Block Prover precompile `0x0FD2`** — Merkle and continuity
+   proofs checked in the same transaction that mints. No reporter in the path;
+   `trustedParties()` returns 0.
+3. **Freshness read on-chain from ChainInfo precompile `0x0FD3`**, so no off-chain party
+   can lie about how stale a proof is.
+4. **Encumbrance-aware bounds.** Withdrawals are announced and timelocked; an announced
+   exit stops counting as backing immediately, which closes the ~9 minute attestation
+   window. The delay is required to exceed 2x measured detection latency, enforced at
+   construction.
+5. **Cross-chain liability aggregation.** Remote wrapped supply is proven the same way and
+   summed; a registered chain that stops reporting freezes minting.
+6. **Optimistic interval continuity.** "No outflow over [a,b]" is asserted under bond and
+   refutable by a single inclusion proof, with the bond paid to the challenger.
+
+Built against `@gluwa/usc-contracts@0.2.0` and `@gluwa/usc-sdk@0.18.0`, live on CC3
+testnet (chainId 102031) with Ethereum Sepolia as source (chainKey 1). Measured on-chain:
+`mintWithProof` costs 382,578 gas including full proof verification and the aggregate
+invariant.
+
+Full technical documentation, including four undocumented protocol behaviours we hit and
+how we handled them: `docs/ATTESTCOIN_INTEGRATION.md`
+
+Verifiable by anyone with no key and no funds: `npx @mintbound/cli verify --source-tx 0x...`
+
+---
+
+## Depth detail — append to Project Description if the field allows
+
+*Depth of Attestcoin utilization is the stated core scoring criterion, so this is the
+most specific section here. It expands the six points summarised above.*
 
 MintBound uses the protocol in **six distinct ways**, feeding a single on-chain
 invariant:
@@ -237,6 +280,7 @@ What survives is narrow and specific, and it survives *because* it is narrow:
 
 ## Repository
 
+- [`docs/ATTESTCOIN_INTEGRATION.md`](docs/ATTESTCOIN_INTEGRATION.md) — setup + how the protocol is used (submission requirement)
 - [`docs/INVARIANTS.md`](docs/INVARIANTS.md) — formal safety properties and the tests that check them
 - [`docs/EVIDENCE.md`](docs/EVIDENCE.md) — every claim mapped to a runnable artifact
 - [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md)

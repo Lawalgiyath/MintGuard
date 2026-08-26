@@ -396,6 +396,7 @@ packages/
   dashboard/     Next.js instrument — LIVE / REPLAY / SIMULATED
 SUBMISSION.md    Paste-ready DoraHacks copy, every claim checkable
 docs/
+  ATTESTCOIN_INTEGRATION.md  Setup + how the protocol is used, end to end
   INVARIANTS.md    Formal safety properties, and the tests that check them
   EVIDENCE.md      Every claim mapped to a runnable artifact
   PITCH.md         One page, one idea — start here
