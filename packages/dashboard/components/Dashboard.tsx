@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BoundBar } from "./BoundBar";
 import { ProofLedger, StatGrid, TrustPath } from "./Panels";
 import { Divergence } from "./Divergence";
+import { ThirtySeconds } from "./ThirtySeconds";
 import { buildActs, snapshotAt } from "@/lib/simulator";
 import {
   EMPTY_STATE,
@@ -225,6 +226,8 @@ export function Dashboard() {
             worst exactly where auditors and courts are weakest.
           </p>
         </section>
+
+        <ThirtySeconds />
 
         {mode === "live" && liveError && (
           <div className="notice" role="status">
