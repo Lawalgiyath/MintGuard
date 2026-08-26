@@ -1,0 +1,22 @@
+{
+  "name": "@mintbound/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/worker.ts",
+    "snapshot": "tsx src/snapshot-once.ts",
+    "typecheck": "tsc --noEmit",
+    "verify:live": "tsx src/verify-live.ts"
+  },
+  "dependencies": {
+    "@gluwa/usc-sdk": "0.18.0",
+    "dotenv": "^17.4.2",
+    "ethers": "^6.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "tsx": "^4.22.4",
+    "typescript": "^5.9.0"
+  }
+}

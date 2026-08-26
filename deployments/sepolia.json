@@ -1,0 +1,16 @@
+{
+  "network": "sepolia",
+  "chainId": 11155111,
+  "timestamp": "2026-08-26T11:23:59.305Z",
+  "contracts": {
+    "TestUSD": "0x91FAF68A9E5C0e013b5c01b7AACF4C841A6382f8",
+    "ReserveVault": "0x1f42B80ebac56AF3f023997A4240D3B97476A557",
+    "SupplyBeacon": "0x448292774b807B49025002e256d004378f788d07"
+  },
+  "config": {
+    "minSnapshotGap": 5,
+    "withdrawalDelayBlocks": 150,
+    "genesisSnapshotTx": "0x908d7c0b791904e8e0e1cf7e861dd06001cb9aa9f297ca7a0867d9fa23da7e6f",
+    "genesisSnapshotBlock": 11570549
+  }
+}

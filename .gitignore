@@ -1,0 +1,16 @@
+node_modules/
+.env
+.env.local
+artifacts/
+cache/
+types/
+out/
+.next/
+dist/
+coverage/
+deployments/*.local.json
+*.log
+.DS_Store
+
+# Build artifacts
+*.tsbuildinfo

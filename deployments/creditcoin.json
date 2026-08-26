@@ -1,0 +1,21 @@
+{
+  "network": "creditcoin",
+  "chainId": 102031,
+  "timestamp": "2026-08-26T11:23:44.358Z",
+  "contracts": {
+    "MintBoundASC": "0x91FAF68A9E5C0e013b5c01b7AACF4C841A6382f8",
+    "WrappedAsset": "0x1f42B80ebac56AF3f023997A4240D3B97476A557",
+    "ProvenReserveFeed": "0x5578784ddE6c05c0370119FF68c439847CB307D7",
+    "ConventionalPoRFeed": "0xbAceA461241F5D9D27e2308D279AB1add95B226F",
+    "SecureMintReference": "0x8f2A246623b000DE0486242f8806b0dDeF2375b9",
+    "SolvencyGatedCredit": "0x44082286d90ebB087F34EE4Bc6Bd918B205d7156",
+    "SolvencyContinuity": "0x448292774b807B49025002e256d004378f788d07"
+  },
+  "config": {
+    "sourceChainKey": 1,
+    "canonicalVault": "0x1f42B80ebac56AF3f023997A4240D3B97476A557",
+    "sourceAsset": "0x91FAF68A9E5C0e013b5c01b7AACF4C841A6382f8",
+    "maxStalenessBlocks": 200,
+    "haircutBps": 10000
+  }
+}
