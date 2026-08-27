@@ -235,8 +235,9 @@ integrating protocol can read how much trust its own evidence requires.
 
 ## What is genuinely novel — and what is not
 
-We killed four of our own novelty claims during development and are publishing the
-autopsy, because a claim that does not survive scrutiny is worse than no claim.
+We killed five of our own novelty claims and are publishing the autopsy, because a claim
+that does not survive scrutiny is worse than no claim. The fifth was killed by a project
+in this very hackathon, three days before we looked.
 
 | Claim we considered | Verdict |
 |---|---|
@@ -244,6 +245,7 @@ autopsy, because a claim that does not survive scrutiny is worse than no claim.
 | Aggregate (stock, not flow) check as our differentiator | **Not novel.** Secure Mint checks the aggregate too. |
 | Cross-chain supply aggregation | **Not novel.** LayerZero OFT and Chainlink CCT do this. |
 | Optimistic verification with bonded dispute | **Not novel.** UMA and optimistic rollups got there first. |
+| "Bonded assertion of a negative, refutable by one proof" as our idea | **Not novel, and not even uniquely ours this season.** `PugarHuda/utuh` independently built the same primitive for *set completeness* rather than reserve outflow, and did it more generally. Two teams reaching it independently is evidence the primitive is right, not that either of us invented it. |
 
 What survives is narrow and specific, and it survives *because* it is narrow:
 
