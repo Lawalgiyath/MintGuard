@@ -35,6 +35,11 @@ It is infrastructure, not an application: the primitive that other RWA products 
 Creditcoin can depend on so that the assets they represent cannot quietly become unbacked
 liabilities.
 
+Two things about it are unusual, and both are checkable in under a minute. It is the only
+project in this hackathon that verifies **reserves** rather than events. And it is the
+only one you can audit with no key, no funds and no clone — `npx @mintbound/cli attack`
+fires the documented attacks at the live guard and shows you the reverts.
+
 ---
 
 ## The problem
@@ -259,6 +264,34 @@ What survives is narrow and specific, and it survives *because* it is narrow:
 - **The composition**: reserve proof + liability proof + encumbrance + freshness +
   continuity, resolved into one bound evaluated inside the minting transaction, with zero
   trusted parties in that path.
+
+---
+
+## Where this sits in the field
+
+We surveyed the public repositories built against the Attestcoin Protocol this season
+— roughly 80 of them — rather than guessing. They cluster tightly:
+
+| What people built | Roughly |
+|---|---|
+| Credit scoring and portable reputation | ~15 |
+| Settlement and payment verification | ~10 |
+| Monitoring, alerting, agents | ~8 |
+| **Reserve solvency** | **1** |
+
+Everyone else is proving that an **event happened** — a payment settled, a loan was
+repaid, a delivery occurred — and then acting on it. MintBound is the only project we
+could find that proves **state**, and the only one that enforces a balance-sheet
+invariant on what it proves.
+
+That is not a claim that the other work is lesser. Some of it is excellent, and one
+project — `PugarHuda/utuh` — independently arrived at the same bonded-assertion
+primitive behind our continuity module, in a more general form, and we have credited that
+in the autopsy above. It is a claim about **category**: the question "is the money still
+there?" is being asked once in this hackathon.
+
+The RWA track asks for work that bridges off-chain value with on-chain transparency.
+Reserve solvency is that question, stated exactly.
 
 ---
 

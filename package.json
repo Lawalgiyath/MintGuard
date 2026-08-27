@@ -20,6 +20,8 @@
     "test:invariant": "npm run test:invariant -w @mintbound/contracts",
     "cli": "npm run dev -w @mintbound/cli --",
     "status": "npm run dev -w @mintbound/cli -- status",
-    "attack:live": "npm run dev -w @mintbound/cli -- attack"
+    "attack:live": "npm run dev -w @mintbound/cli -- attack",
+    "verify:source": "npm run verify:source -w @mintbound/contracts",
+    "coverage": "npm run coverage -w @mintbound/contracts"
   }
 }

@@ -29,6 +29,33 @@ const config: HardhatUserConfig = {
     sepolia: { type: "http", chainType: "l1", url: SEPOLIA_RPC_URL, accounts, chainId: 11155111 },
     creditcoin: { type: "http", chainType: "l1", url: CREDITCOIN_RPC_URL, accounts, chainId: 102031 },
   },
+
+  // Creditcoin CC3 is not in Hardhat's built-in chain registry, so the explorer has to
+  // be described before `hardhat verify` can reach it. Endpoint confirmed live against
+  // module=contract&action=getsourcecode.
+  chainDescriptors: {
+    102031: {
+      name: "Creditcoin CC3 Testnet",
+      blockExplorers: {
+        blockscout: {
+          name: "Blockscout",
+          url: "https://creditcoin-testnet.blockscout.com",
+          apiUrl: "https://creditcoin-testnet.blockscout.com/api",
+        },
+      },
+    },
+  },
+
+  // Publishing source is not cosmetic here. This project's entire claim is that you do
+  // not have to trust us — and an unverified contract is a claim you cannot check. A
+  // judge clicking through to raw bytecode has been handed an assertion, not evidence.
+  verify: {
+    blockscout: { enabled: true },
+    etherscan: { apiKey: process.env.ETHERSCAN_API_KEY ?? "", enabled: true },
+    // Sourcify needs no API key, which matters: anyone cloning this repo can republish
+    // source for their own Sepolia deployment without first obtaining credentials.
+    sourcify: { enabled: true },
+  },
 };
 
 export default config;

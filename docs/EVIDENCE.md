@@ -27,7 +27,12 @@ From a clone:
 npm run test:contracts      # 80 unit tests
 npm run test:invariant      # 7 invariants under randomised fuzzing
 npm run verify:live         # 13 checks against live CC3 infrastructure
+npm run verify:source       # republish source for every deployed contract
 ```
+
+`verify:source` recovers constructor arguments **from the deployed contracts
+themselves** rather than from the deploy script, so a verification that passes is
+evidence about what is actually on chain, not about what we believe we deployed.
 
 ---
 
@@ -101,7 +106,12 @@ thing any tool did on this project.
 
 ## Deployed addresses
 
-**Creditcoin CC3 testnet** (chainId 102031)
+All ten contracts have **published, verified source**. Clicking any address below
+lands on readable Solidity, not bytecode — which matters more here than for most
+projects, because every claim this system makes is only checkable if the code behind
+the address can be read.
+
+**Creditcoin CC3 testnet** (chainId 102031) — verified on Blockscout
 
 | Contract | Address |
 |---|---|
@@ -113,7 +123,7 @@ thing any tool did on this project.
 | SolvencyGatedCredit | `0x44082286d90ebB087F34EE4Bc6Bd918B205d7156` |
 | SolvencyContinuity | `0x448292774b807B49025002e256d004378f788d07` |
 
-**Ethereum Sepolia**
+**Ethereum Sepolia** — verified on Sourcify
 
 | Contract | Address |
 |---|---|

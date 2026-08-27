@@ -6,7 +6,10 @@
   "scripts": {
     "build": "hardhat compile",
     "test": "hardhat test",
-    "test:invariant": "hardhat test solidity"
+    "test:invariant": "hardhat test solidity",
+    "verify:source": "hardhat run scripts/verify-source.ts --network creditcoin",
+    "verify:source:sepolia": "hardhat run scripts/verify-source.ts --network sepolia",
+    "coverage": "hardhat test --coverage"
   },
   "dependencies": {
     "@gluwa/usc-contracts": "0.2.0",
