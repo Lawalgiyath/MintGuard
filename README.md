@@ -383,7 +383,7 @@ ETHEREUM SEPOLIA (chainKey 1)            CREDITCOIN CC3 (102031)
 
 ```
 packages/
-  contracts/     Solidity + Hardhat 3. 80 unit tests + 7 invariants.
+  contracts/     Solidity + Hardhat 3. 113 unit tests + 7 invariants.
     contracts/sepolia/       ReserveVault, SupplyBeacon, TestUSD
     contracts/creditcoin/    MintBoundASC, WrappedAsset, ProvenReserveFeed,
                              SolvencyContinuity,
@@ -421,7 +421,7 @@ npm install
 cp .env.example .env          # add DEPLOYER_PRIVATE_KEY, WORKER_PRIVATE_KEY
 
 # 1. Contracts
-npm run test:contracts        # 80 unit tests
+npm run test:contracts        # 113 unit tests
 npm run test:invariant        # 7 stateful invariants, 256 randomised runs each
 npm run verify:live           # 13 live checks against real CC3 infra — no funds needed
 

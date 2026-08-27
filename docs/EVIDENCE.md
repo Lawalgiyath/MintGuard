@@ -91,10 +91,35 @@ mint itself.
 
 | Suite | Count | What it covers |
 |---|---|---|
-| Unit (`mocha`) | 80 | Business logic, rejection paths, Chainlink compatibility, evidence grading, composability |
+| Unit (`mocha`) | 113 | Business logic, rejection paths, Chainlink compatibility, evidence grading, composability, and the source-chain contracts |
 | Invariant (forge-std under Hardhat 3) | 7 × 256 runs | The propositions in [INVARIANTS.md](INVARIANTS.md), under randomised call sequences |
 | Live infrastructure | 13 | Real CC3 precompiles, Proof Builder, attestation, deployed contract state |
 | Live attacks | 6 | Real `eth_call`s against the deployed guard |
+
+Run coverage with `npm run coverage`.
+
+### What coverage found, and why it is in this document
+
+A coverage run is reported here rather than quietly acted on, because what it found was
+worse than a low number: **`SupplyBeacon.sol` sat at 0.00%, and `ReserveVault.sol` at
+62.50%.**
+
+Those two contracts carry two of the six mechanisms this project claims — encumbrance-aware
+bounds and cross-chain liability aggregation. The suite had been proving that
+`MintBoundASC` *consumes* their logs correctly, using synthesised log entries, and had
+never once run the contracts that actually *emit* those logs. The withdrawal timelock,
+which is the entire mechanism behind invariants I3 and I4, was among the untested paths.
+
+Nothing was wrong with the contracts. What was wrong was that the evidence for them did
+not exist, and the headline test count concealed it — which is precisely the failure mode
+this document is supposed to prevent. `test/SourceChain.test.ts` now covers both directly:
+the timelock, encumbrance arithmetic, permissionless snapshotting, the rate limits,
+owner-only restrictions asserted by exact error rather than a bare revert, and a
+fee-on-transfer asset proving that `deposit` credits the balance delta rather than the
+requested amount.
+
+The number that matters is not the percentage. It is that no mechanism named in this
+repository is now backed only by a test of something adjacent to it.
 
 The invariant fuzzer earns its place: it **falsified our own written specification**. An
 earlier draft asserted `supply <= ceiling` at all times. The fuzzer found the
