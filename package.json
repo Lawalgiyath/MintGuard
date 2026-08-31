@@ -18,10 +18,12 @@
     "verify:live": "npm run verify:live -w @mintbound/worker",
     "postinstall": "node scripts/patch-hardhat-reporter.mjs",
     "test:invariant": "npm run test:invariant -w @mintbound/contracts",
-    "cli": "npm run dev -w @mintbound/cli --",
-    "status": "npm run dev -w @mintbound/cli -- status",
-    "attack:live": "npm run dev -w @mintbound/cli -- attack",
+    "cli": "npm run dev -w mintbound-cli --",
+    "status": "npm run dev -w mintbound-cli -- status",
+    "attack:live": "npm run dev -w mintbound-cli -- attack",
     "verify:source": "npm run verify:source -w @mintbound/contracts",
-    "coverage": "npm run coverage -w @mintbound/contracts"
+    "coverage": "npm run coverage -w @mintbound/contracts",
+    "claims": "npm run dev -w mintbound-cli -- claims",
+    "publish:cli": "npm publish -w mintbound-cli --access public"
   }
 }

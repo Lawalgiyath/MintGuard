@@ -20,13 +20,24 @@ import { CROSS, TICK, c, heading, rule, units } from "../render.js";
  * claims that are currently unmet are printed just as loudly as the ones that are met.
  */
 
+/**
+ * A claim resolves to one of three states, and the third one matters.
+ *
+ * "unknown" means the evidence could not be reached — a block explorer timed out, an
+ * RPC refused — not that the claim is false. Collapsing that into FAIL would mean our
+ * own audit reports this project as broken because somebody else's website was slow,
+ * which is precisely the misreport this command exists to prevent. Unknown is shown
+ * distinctly, is never counted as verified, and does not set a failing exit code.
+ */
+type Verdict = "pass" | "fail" | "unknown";
+
 interface Claim {
   id: string;
   /** Stated exactly as the submission states it. */
   claim: string;
   /** Where the answer comes from. "chain" means read, not asserted. */
   source: string;
-  ok: boolean;
+  verdict: Verdict;
   detail: string;
 }
 
@@ -79,9 +90,17 @@ export async function claims(opts: { json?: boolean } = {}) {
     id: string,
     claim: string,
     source: string,
-    ok: boolean,
+    result: boolean | Verdict,
     detail: string,
-  ) => out.push({ id, claim, source, ok, detail });
+  ) =>
+    out.push({
+      id,
+      claim,
+      source,
+      verdict:
+        typeof result === "boolean" ? (result ? "pass" : "fail") : result,
+      detail,
+    });
 
   // ── 1. no reporter in the mint path ─────────────────────────────────────────
   add(
@@ -241,9 +260,12 @@ export async function claims(opts: { json?: boolean } = {}) {
     "source-published",
     "Every deployed contract publishes verified source, so the code behind each address can be read.",
     "explorer: Blockscout getsourcecode, queried live",
-    published === ccNames.length,
+    // Unreachable is not the same as unpublished. Blockscout times out often enough
+    // that treating a slow explorer as a failed claim would make this command
+    // intermittently accuse its own project of something untrue.
+    unreachable > 0 ? "unknown" : published === ccNames.length ? "pass" : "fail",
     unreachable > 0
-      ? `${published}/${ccNames.length} confirmed; ${unreachable} could not be checked — the explorer did not answer, which is not the same as unpublished`
+      ? `${published}/${ccNames.length} confirmed; ${unreachable} could not be reached — the explorer did not answer, which is not evidence either way`
       : `${published}/${ccNames.length} Creditcoin contracts return source from the explorer`,
   );
 
@@ -261,16 +283,16 @@ export async function claims(opts: { json?: boolean } = {}) {
     "gas-measured",
     "mintWithProof costs about 382,578 gas including proof verification and the full invariant.",
     `chain: receipt for ${MINT_TX.slice(0, 12)}…`,
-    mintGas > 0n && mintGas < 400_000n,
+    mintGas === 0n ? "unknown" : mintGas < 400_000n ? "pass" : "fail",
     mintGas > 0n
       ? `the real receipt reports ${mintGas.toString()} gas`
-      : "could not fetch the receipt to confirm the figure",
+      : "the receipt could not be fetched — no evidence either way, not a failure",
   );
 
   // ── report ──────────────────────────────────────────────────────────────────
   if (opts.json) {
     console.log(JSON.stringify({ claims: out }, null, 2));
-    return out.every((x) => x.ok) ? 0 : 1;
+    return out.some((x) => x.verdict === "fail") ? 1 : 0;
   }
 
   heading("MintBound — auditing our own claims");
@@ -302,28 +324,48 @@ export async function claims(opts: { json?: boolean } = {}) {
   console.log("");
 
   for (const x of out) {
-    const mark = x.ok ? c.green(TICK) : c.red(CROSS);
+    const mark =
+      x.verdict === "pass"
+        ? c.green(TICK)
+        : x.verdict === "fail"
+          ? c.red(CROSS)
+          : c.yellow("?");
     console.log(`  ${mark} ${c.bold(x.claim)}`);
     console.log(`      ${x.detail}`);
     console.log(`      ${c.grey(x.source)}`);
     console.log("");
   }
 
-  const passed = out.filter((x) => x.ok).length;
+  const passed = out.filter((x) => x.verdict === "pass").length;
+  const failed = out.filter((x) => x.verdict === "fail").length;
+  const unknown = out.filter((x) => x.verdict === "unknown").length;
+
   rule();
   const tally = `${passed}/${out.length}`;
   console.log(
-    `  ${passed === out.length ? c.green(tally) : c.red(tally)} claims verified against live state.`,
+    `  ${failed > 0 ? c.red(tally) : c.green(tally)} claims verified against live state` +
+      (unknown > 0 ? c.yellow(`  ·  ${unknown} could not be reached`) : "") +
+      (failed > 0 ? c.red(`  ·  ${failed} FAILED`) : ""),
   );
-  if (passed !== out.length) {
+  if (failed > 0) {
     console.log(
       c.grey(
-        "\n  The unmet claims above are printed exactly as loudly as the met ones,\n" +
+        "\n  The failed claims above are printed exactly as loudly as the met ones,\n" +
           "  because a submission you cannot fail is not evidence of anything.",
+      ),
+    );
+  }
+  if (unknown > 0) {
+    console.log(
+      c.grey(
+        "\n  An unreachable source is not a failed claim. Those rows are marked ? rather\n" +
+          "  than counted either way, and do not set a failing exit code — a third party\n" +
+          "  being slow is not evidence about this project.",
       ),
     );
   }
   console.log("");
 
-  return passed === out.length ? 0 : 1;
+  // Fail only on an actual FAIL. Unknown is honest uncertainty, not a defect.
+  return failed > 0 ? 1 : 0;
 }

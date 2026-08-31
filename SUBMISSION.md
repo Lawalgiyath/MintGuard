@@ -42,7 +42,7 @@ the reserve figure to hold. No other reserve system publishes that number at all
 
 Two further things are unusual, and both are checkable in under a minute. It is the only
 project in this hackathon that verifies **reserves** rather than events. And it is the
-only one that audits itself: `npx @mintbound/cli claims` re-checks **every factual claim
+only one that audits itself: `npx mintbound-cli claims` re-checks **every factual claim
 on this page** against live chain state and returns a non-zero exit code if any of them
 fails.
 
@@ -123,7 +123,7 @@ invariant.
 Full technical documentation, including four undocumented protocol behaviours we hit and
 how we handled them: `docs/ATTESTCOIN_INTEGRATION.md`
 
-Verifiable by anyone with no key and no funds: `npx @mintbound/cli verify --source-tx 0x...`
+Verifiable by anyone with no key and no funds: `npx mintbound-cli verify --source-tx 0x...`
 
 ---
 
@@ -223,10 +223,14 @@ infrastructure checks · 6/6 live attacks blocked · all 10 contracts verified o
 ## Check it yourself — no key, no funds, no setup
 
 ```bash
-npx @mintbound/cli claims     # re-check every claim on this page against live state
-npx @mintbound/cli status     # live balance sheet + assurance vector
-npx @mintbound/cli attack     # fire the documented attacks at the live guard
-npx @mintbound/cli verify --source-tx 0x...
+
+> **If `npx` reports the package is not found**, it has not been published yet.
+> Everything above also runs straight from a clone, with no publish step:
+> `git clone https://github.com/Lawalgiyath/MintGuard && cd MintGuard && npm install && npm run claims`
+npx mintbound-cli claims     # re-check every claim on this page against live state
+npx mintbound-cli status     # live balance sheet + assurance vector
+npx mintbound-cli attack     # fire the documented attacks at the live guard
+npx mintbound-cli verify --source-tx 0x...
 ```
 
 `claims` is the one to run first. It takes each factual assertion in this submission,

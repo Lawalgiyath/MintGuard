@@ -254,11 +254,15 @@ silent over-issuance.
 ## Check it from your terminal — no key, no funds, no clone
 
 ```bash
-npx @mintbound/cli claims     # audit every claim this repo makes, against live state
-npx @mintbound/cli status     # live balance sheet + assurance vector
-npx @mintbound/cli attack     # fire the documented attacks at the live guard
-npx @mintbound/cli verify --source-tx 0x...
+npx mintbound-cli claims     # audit every claim this repo makes, against live state
+npx mintbound-cli status     # live balance sheet + assurance vector
+npx mintbound-cli attack     # fire the documented attacks at the live guard
+npx mintbound-cli verify --source-tx 0x...
 ```
+
+> **If `npx` reports the package is not found**, it has not been published yet.
+> Everything above also runs straight from a clone, with no publish step:
+> `git clone https://github.com/Lawalgiyath/MintGuard && cd MintGuard && npm install && npm run claims`
 
 ```
 Assurance  90/100
@@ -392,7 +396,7 @@ packages/
     contracts/interfaces/    IChainInfo (reconstructed), ISolvencyOracle
     contracts/mocks/         Precompile stand-ins, injected at 0x0FD2 / 0x0FD3
     scripts/                 deploy-sepolia, deploy-creditcoin, attack
-  cli/           npx @mintbound/cli — status / verify / attack, read-only
+  cli/           npx mintbound-cli — status / verify / attack, read-only
   worker/        Untrusted relay: snapshot heartbeat + mint relay, proof capture
   dashboard/     Next.js instrument — LIVE / REPLAY / SIMULATED
 SUBMISSION.md    Paste-ready DoraHacks copy, every claim checkable

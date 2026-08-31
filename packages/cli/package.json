@@ -1,17 +1,22 @@
 {
-  "name": "@mintbound/cli",
+  "name": "mintbound-cli",
   "version": "0.1.0",
   "description": "Verify MintBound's solvency evidence yourself, against live chains, with no keys and no funds.",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "mintbound": "./dist/index.js"
+    "mintbound": "./dist/index.js",
+    "mintbound-cli": "./dist/index.js"
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsx src/index.ts",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@gluwa/usc-sdk": "0.18.0",
@@ -21,5 +26,25 @@
     "@types/node": "^26.1.0",
     "tsx": "^4.22.4",
     "typescript": "^5.9.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Lawalgiyath/MintGuard.git",
+    "directory": "packages/cli"
+  },
+  "keywords": [
+    "creditcoin",
+    "attestcoin",
+    "proof-of-reserve",
+    "solvency",
+    "cross-chain",
+    "rwa",
+    "wrapped-assets"
+  ],
+  "engines": {
+    "node": ">=20"
   }
 }

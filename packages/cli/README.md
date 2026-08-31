@@ -1,10 +1,14 @@
-# @mintbound/cli
+# mintbound-cli
 
 Check MintBound's solvency evidence yourself, against live chains.
 
 ```bash
-npx @mintbound/cli status
+npx mintbound-cli status
 ```
+
+> **If `npx` reports the package is not found**, it has not been published yet.
+> Everything above also runs straight from a clone, with no publish step:
+> `git clone https://github.com/Lawalgiyath/MintGuard && cd MintGuard && npm install && npm run claims`
 
 **No private key. No funded account. No setup.** The Attestcoin Proof Builder is a read
 API, and the guard's entry points are reachable by `eth_call` — so every claim MintBound
@@ -134,4 +138,4 @@ redeploy needs no edit here.
 | 1 | Minting frozen / proof rejected / an attack succeeded |
 | 2 | Usage error |
 
-Suitable for CI: `npx @mintbound/cli status` failing is a real signal.
+Suitable for CI: `npx mintbound-cli status` failing is a real signal.

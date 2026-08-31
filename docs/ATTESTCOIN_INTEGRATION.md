@@ -63,9 +63,9 @@ code — and mechanism 4 below is what makes it survivable rather than fatal.
 To check the live deployment without cloning anything:
 
 ```bash
-npx @mintbound/cli status
-npx @mintbound/cli attack
-npx @mintbound/cli verify --source-tx 0x...
+npx mintbound-cli status
+npx mintbound-cli attack
+npx mintbound-cli verify --source-tx 0x...
 ```
 
 ---
@@ -246,7 +246,7 @@ entry points are reachable by `eth_call`, so all of it is checkable with no key 
 funds:
 
 ```bash
-npx @mintbound/cli verify --source-tx 0xc42a211e02ee86e5d92bb0bee2cef1679fbd358e474a044bdfe1e7ff7c9efa9c
+npx mintbound-cli verify --source-tx 0xc42a211e02ee86e5d92bb0bee2cef1679fbd358e474a044bdfe1e7ff7c9efa9c
 ```
 
 Deployed addresses and key transaction hashes: [EVIDENCE.md](EVIDENCE.md).

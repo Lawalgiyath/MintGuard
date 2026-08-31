@@ -13,10 +13,14 @@ hash — so that nothing here rests on our say-so.
 No key, no funded account, no clone required:
 
 ```bash
-npx @mintbound/cli status     # the live balance sheet and assurance vector
-npx @mintbound/cli attack     # fire the documented attacks at the live guard
-npx @mintbound/cli verify --source-tx 0x...   # walk one transaction through the precompile
+npx mintbound-cli status     # the live balance sheet and assurance vector
+npx mintbound-cli attack     # fire the documented attacks at the live guard
+npx mintbound-cli verify --source-tx 0x...   # walk one transaction through the precompile
 ```
+
+> **If `npx` reports the package is not found**, it has not been published yet.
+> Everything above also runs straight from a clone, with no publish step:
+> `git clone https://github.com/Lawalgiyath/MintGuard && cd MintGuard && npm install && npm run claims`
 
 These work because the Proof Builder is a read API and the guard's entry points are
 reachable by `eth_call`. Verification is a spectator sport here by design.
