@@ -35,18 +35,33 @@ It is infrastructure, not an application: the primitive that other RWA products 
 Creditcoin can depend on so that the assets they represent cannot quietly become unbacked
 liabilities.
 
-Two things about it are unusual, and both are checkable in under a minute. It is the only
+The rules ask for cross-chain logic *“without relying on centralized oracle operators”*.
+MintBound answers that with a number rather than a paragraph: **`trustedParties()` returns
+`0`** — a value the contract publishes, meaning zero off-chain parties must be honest for
+the reserve figure to hold. No other reserve system publishes that number at all.
+
+Two further things are unusual, and both are checkable in under a minute. It is the only
 project in this hackathon that verifies **reserves** rather than events. And it is the
-only one you can audit with no key, no funds and no clone — `npx @mintbound/cli attack`
-fires the documented attacks at the live guard and shows you the reverts.
+only one that audits itself: `npx @mintbound/cli claims` re-checks **every factual claim
+on this page** against live chain state and returns a non-zero exit code if any of them
+fails.
 
 ---
 
 ## The problem
 
-On 23 March 2022, holders of the Cashio stablecoin discovered their tokens were backed by
-nothing. $52.8M evaporated. There was never a moment at which the system said *the
-backing is leaving* — because nothing in the system was watching the backing.
+Attestcoin's own front page names the problem: *“Billions lost to bridge exploits, again
+and again”*, and *“wrap and unwrap tokens just to move”*.
+
+In July 2023, Multichain operated wrapped assets across ten chains against custodied
+reserves, held roughly $1.26B, and lost approximately $126–130M when centralised control
+failed. Every one of those chains could have shown a healthy per-chain reserve check
+while the system as a whole was insolvent, because no per-chain design ever looks at the
+other chains.
+
+The year before, holders of the Cashio stablecoin discovered their tokens were backed by
+nothing and $52.8M evaporated. In neither case was there a moment at which the system
+said *the backing is leaving* — because nothing in it was watching the backing.
 
 This is a structural gap, not a bug in one project. A mint contract on chain B cannot see
 chain A. So it asks someone. Proof of Reserve systems answer that question honestly and
@@ -92,6 +107,13 @@ Six integration points feed one on-chain invariant:
    summed; a registered chain that stops reporting freezes minting.
 6. **Optimistic interval continuity.** "No outflow over [a,b]" is asserted under bond and
    refutable by a single inclusion proof, with the bond paid to the challenger.
+
+**On depth specifically.** Attestcoin secures itself with *“a decentralized network of
+independent verifiers, called Attestors, who each confirm what's true and put real money
+on the line.”* Mechanism 6 applies that identical economic pattern one layer up: where the
+protocol bonds attestors to secure *facts*, `SolvencyContinuity` bonds claimants to secure
+*intervals between facts*. We did not merely call the protocol — we extended its own
+security model to the gap it does not cover.
 
 Built against `@gluwa/usc-contracts@0.2.0` and `@gluwa/usc-sdk@0.18.0`, live on CC3
 testnet (chainId 102031) with Ethereum Sepolia as source (chainKey 1). Measured on-chain:
@@ -201,10 +223,16 @@ infrastructure checks · 6/6 live attacks blocked · all 10 contracts verified o
 ## Check it yourself — no key, no funds, no setup
 
 ```bash
+npx @mintbound/cli claims     # re-check every claim on this page against live state
 npx @mintbound/cli status     # live balance sheet + assurance vector
 npx @mintbound/cli attack     # fire the documented attacks at the live guard
 npx @mintbound/cli verify --source-tx 0x...
 ```
+
+`claims` is the one to run first. It takes each factual assertion in this submission,
+resolves it against chain state and the block explorer right now, and exits non-zero if
+any of them fails — including the ones that are inconvenient for us. A self-audit that
+cannot return FAIL is marketing in a monospace font, so this one can, and does.
 
 This works because the Proof Builder is a read API and the guard's entry points are
 reachable by `eth_call`. **You do not have to trust anything we wrote here.** Point the
@@ -292,6 +320,35 @@ there?" is being asked once in this hackathon.
 
 The RWA track asks for work that bridges off-chain value with on-chain transparency.
 Reserve solvency is that question, stated exactly.
+
+---
+
+## Who pays, and why
+
+CEIP funds products, so here is the commercial shape rather than a slogan.
+
+**Who needs this.** Anyone who issues a token backed by something held elsewhere: wrapped
+asset issuers, tokenised treasury and invoice platforms, and any RWA protocol on Creditcoin
+whose collateral sits on another chain. Today they either publish a periodic attestation or
+consume an oracle feed; both are reports, and both are the thing that failed at Multichain
+and Cashio.
+
+**Why they would switch.** They mostly do not have to. `ProvenReserveFeed` implements
+`AggregatorV3Interface`, so adoption is a one-address change inside an integration that
+already exists — not a rewrite, not a new standard to learn.
+
+**Where revenue comes from.** The honest answer is that the primitive itself should be free
+and unpermissioned, because a solvency check nobody can run is worth nothing. The
+commercial surface sits beside it: running the snapshot and proof relay as a service for
+issuers who do not want to operate one, and per-asset assurance reporting for the parties
+who need to show a regulator or a counterparty that the backing was continuously proven.
+The relay is deliberately untrusted — it can censor, it cannot forge — so selling it
+creates no new trust assumption for anyone.
+
+**What it does for Creditcoin.** Every proof is a CC3 transaction. An issuer running
+continuous attestation on one asset generates steady, non-speculative block space demand,
+and the pattern in mechanism 1 turns Attestcoin's transaction oracle into a state oracle
+that any other project in this hackathon can reuse.
 
 ---
 

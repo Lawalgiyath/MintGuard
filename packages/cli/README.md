@@ -15,6 +15,33 @@ point of the tool.
 
 ## Commands
 
+### `claims`
+
+Audits our own pitch. Every factual claim MintBound's submission makes, with the live
+check that settles it — fetched now, from chains and explorers.
+
+```
+  right now: minting FROZEN  ·  proof 23741/200 blocks stale  ·  redemption always open
+
+  ✓ No off-chain party has to be trusted for the reserve figure.
+      trustedParties() == 0 — the figure came from the Block Prover precompile
+  ✓ A proof past the staleness bound freezes minting, rather than being used anyway.
+      proof is 23741 of 200 blocks stale, and minting is frozen — the gate bit
+  ✓ mintWithProof costs about 382,578 gas including proof verification and the invariant.
+      the real receipt reports 382578 gas
+
+  11/11 claims verified against live state.
+```
+
+Exits non-zero when any claim fails. That matters: a self-audit that cannot return FAIL
+is marketing in a monospace font.
+
+The first draft of this command omitted freshness and reported 10/10 while the deployment
+was frozen on a stale proof — which is precisely the bias a self-audit exists to remove.
+The freshness claim was added, and it checks the safety property rather than the
+convenient one: not *“minting works right now”* but *“a proof past the bound freezes
+minting rather than being used anyway.”*
+
 ### `status`
 
 The whole balance sheet, read live from Creditcoin CC3 and Ethereum Sepolia.

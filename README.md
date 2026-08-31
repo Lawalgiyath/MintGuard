@@ -254,6 +254,7 @@ silent over-issuance.
 ## Check it from your terminal — no key, no funds, no clone
 
 ```bash
+npx @mintbound/cli claims     # audit every claim this repo makes, against live state
 npx @mintbound/cli status     # live balance sheet + assurance vector
 npx @mintbound/cli attack     # fire the documented attacks at the live guard
 npx @mintbound/cli verify --source-tx 0x...
