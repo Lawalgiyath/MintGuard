@@ -1,0 +1,746 @@
+<title>MintBound</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+  /* ─────────────────────────────────────────────────────────────────────────
+     MintBound — submission deck.
+
+     The palette, the type pairing and the instrument motif are lifted from the
+     live dashboard's own design system rather than invented here, so the deck
+     and the product read as one thing. Dark-first, because the instrument is.
+     ───────────────────────────────────────────────────────────────────────── */
+
+  :root {
+    color-scheme: dark;
+
+    --ground:   #0A0A0A;
+    --raised:   #101114;
+    --sunken:   #060607;
+
+    --ink:      #F5F5F2;
+    --ink-2:    #9CA0A8;
+    --ink-3:    #676B75;
+
+    --rule:     #1E2025;
+    --rule-hi:  #2E3138;
+
+    --proof:      #35D39A;
+    --proof-dim:  #123527;
+    --breach:     #E8564B;
+    --breach-dim: #33110F;
+    --stale:      #E0A32E;
+
+    --sans: "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+    --pad: clamp(24px, 4.4vw, 68px);
+  }
+
+  /* Light viewers get a real design, not an inversion: paper ground, ink text,
+     and the greens/reds darkened so they hold contrast on white. */
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      color-scheme: light;
+      --ground:   #FBFAF7;
+      --raised:   #FFFFFF;
+      --sunken:   #F2F1EC;
+      --ink:      #14161A;
+      --ink-2:    #545A64;
+      --ink-3:    #858B95;
+      --rule:     #E2E1DC;
+      --rule-hi:  #CBCAC4;
+      --proof:      #10794F;
+      --proof-dim:  #DCF0E6;
+      --breach:     #B4322A;
+      --breach-dim: #FAE2E0;
+      --stale:      #8A6110;
+    }
+  }
+
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --ground:   #FBFAF7;
+    --raised:   #FFFFFF;
+    --sunken:   #F2F1EC;
+    --ink:      #14161A;
+    --ink-2:    #545A64;
+    --ink-3:    #858B95;
+    --rule:     #E2E1DC;
+    --rule-hi:  #CBCAC4;
+    --proof:      #10794F;
+    --proof-dim:  #DCF0E6;
+    --breach:     #B4322A;
+    --breach-dim: #FAE2E0;
+    --stale:      #8A6110;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── slide shell ────────────────────────────────────────────────────────── */
+
+  .slide {
+    position: relative;
+    min-height: 100vh;
+    padding: var(--pad) var(--pad) calc(var(--pad) * 0.85) calc(var(--pad) + 46px);
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 26px;
+  }
+
+  /* The spine: a solvency bar down the left of every slide. It is the product's
+     own instrument motif, not decoration — the filled portion is the share of
+     the proven ceiling currently used. */
+  .slide::before {
+    content: "";
+    position: absolute;
+    left: calc(var(--pad) * 0.55);
+    top: var(--pad);
+    bottom: var(--pad);
+    width: 3px;
+    background: linear-gradient(
+      to bottom,
+      var(--proof) 0%,
+      var(--proof) 24%,
+      var(--rule) 24%,
+      var(--rule) 100%
+    );
+    border-radius: 2px;
+  }
+
+  .num {
+    position: absolute;
+    left: calc(var(--pad) * 0.55 - 2px);
+    top: calc(var(--pad) - 24px);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--ink-3);
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  h1, h2, h3 { margin: 0; text-wrap: balance; letter-spacing: -0.022em; }
+
+  h1 { font-size: clamp(38px, 6.4vw, 82px); font-weight: 700; line-height: 1.02; }
+  h2 { font-size: clamp(26px, 3.5vw, 44px); font-weight: 600; line-height: 1.1; }
+  h3 { font-size: clamp(17px, 1.5vw, 21px); font-weight: 600; }
+
+  p { margin: 0; max-width: 68ch; color: var(--ink-2); }
+  p.lead { font-size: clamp(17px, 1.7vw, 22px); color: var(--ink); line-height: 1.5; }
+  strong { color: var(--ink); font-weight: 600; }
+  em { font-style: italic; color: var(--ink); }
+
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+  .stack-sm { display: flex; flex-direction: column; gap: 8px; }
+
+  /* ── title slide ────────────────────────────────────────────────────────── */
+
+  .wordmark {
+    font-family: var(--mono);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .wordmark .bound { color: var(--proof); }
+
+  .title-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-3);
+    letter-spacing: 0.05em;
+  }
+
+  /* ── the two-column comparison, the deck's thesis ───────────────────────── */
+
+  .versus {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+    border: 1px solid var(--rule-hi);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .col { padding: 26px 24px; background: var(--raised); }
+  .col + .col { border-left: 1px solid var(--rule-hi); }
+  .col[data-tone="wrong"] { background: var(--breach-dim); box-shadow: inset 3px 0 0 var(--breach); }
+  .col[data-tone="right"] { background: var(--proof-dim); box-shadow: inset 3px 0 0 var(--proof); }
+
+  .col-name {
+    font-size: 11px; letter-spacing: 0.09em; text-transform: uppercase;
+    color: var(--ink-2); margin-bottom: 10px;
+  }
+  .figure {
+    font-family: var(--mono);
+    font-size: clamp(30px, 4.2vw, 46px);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .col[data-tone="wrong"] .figure { color: var(--breach); }
+  .col[data-tone="right"] .figure { color: var(--proof); }
+  .figure-cap { font-size: 12px; color: var(--ink-3); margin-top: 7px; }
+  .col p { font-size: 13.5px; margin-top: 14px; }
+
+  /* ── mechanism list ─────────────────────────────────────────────────────── */
+
+  .mechs { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .mech { background: var(--ground); padding: 20px 22px; display: flex; flex-direction: column; gap: 7px; }
+  .mech-k { font-family: var(--mono); font-size: 10.5px; color: var(--proof); letter-spacing: 0.1em; }
+  .mech h3 { font-size: 16px; }
+  .mech p { font-size: 13.2px; line-height: 1.5; }
+
+  /* ── data tables ────────────────────────────────────────────────────────── */
+
+  .scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 11px 16px 11px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th {
+    font-family: var(--mono); font-size: 10px; font-weight: 500;
+    letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-3);
+    border-bottom-color: var(--rule-hi);
+  }
+  td { color: var(--ink-2); }
+  td:first-child { color: var(--ink); }
+  td.n, th.n { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ok { color: var(--proof); }
+  .no { color: var(--breach); }
+
+  /* ── callout ────────────────────────────────────────────────────────────── */
+
+  .rule-box {
+    border: 1px solid var(--proof);
+    background: var(--proof-dim);
+    border-radius: 4px;
+    padding: 24px 26px;
+  }
+  .rule-box p { color: var(--ink); font-size: clamp(16px, 1.7vw, 20px); max-width: 60ch; }
+
+  .note {
+    border-left: 2px solid var(--rule-hi);
+    padding-left: 18px;
+    font-size: 13.5px;
+  }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .kpi { background: var(--ground); padding: 18px 20px; }
+  .kpi-v { font-family: var(--mono); font-size: clamp(22px, 2.6vw, 31px); font-weight: 500; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .kpi-l { font-size: 11.5px; color: var(--ink-3); margin-top: 5px; line-height: 1.35; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.9em;
+    background: var(--sunken);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--ink);
+  }
+
+  .addr { font-family: var(--mono); font-size: 11.5px; color: var(--ink-2); word-break: break-all; }
+
+  ul { margin: 0; padding-left: 18px; color: var(--ink-2); }
+  li { margin-bottom: 7px; }
+  li::marker { color: var(--ink-3); }
+
+  /* ── print: one slide per page, ink-on-paper ────────────────────────────── */
+
+  @page { size: A4 landscape; margin: 12mm; }
+
+  @media print {
+    :root {
+      --ground: #FFFFFF; --raised: #FFFFFF; --sunken: #F5F5F2;
+      --ink: #0B0D10; --ink-2: #3D434C; --ink-3: #6E747E;
+      --rule: #D8D7D2; --rule-hi: #B4B3AE;
+      --proof: #0C6842; --proof-dim: #EAF6F0;
+      --breach: #A02A22; --breach-dim: #FBEBE9;
+    }
+    body { font-size: 11pt; }
+    .slide {
+      min-height: auto;
+      height: auto;
+      page-break-after: always;
+      break-after: page;
+      border-bottom: 0;
+      padding: 0 0 0 34px;
+      justify-content: flex-start;
+      gap: 18px;
+    }
+    .slide:last-child { page-break-after: auto; break-after: auto; }
+    h1 { font-size: 34pt; }
+    h2 { font-size: 21pt; }
+    .figure { font-size: 26pt; }
+    .kpi-v { font-size: 17pt; }
+    .versus, .mechs, .kpis, .rule-box { break-inside: avoid; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<!-- ══ 01 · title ══════════════════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">01</span>
+  <div class="stack">
+    <div class="eyebrow">BUIDL CTC 2026 Fall &nbsp;·&nbsp; RWA &nbsp;·&nbsp; Attestcoin Protocol</div>
+    <h1>Proof,<br>not promise.</h1>
+    <p class="lead" style="max-width:56ch">
+      Every wrapped token promises it is backed by something real, somewhere else.
+      Today that promise is <em>reported</em>. MintBound makes it a condition of
+      whether new tokens can exist at all.
+    </p>
+  </div>
+  <div class="title-meta">
+    <span><span class="wordmark">Mint<span class="bound">Bound</span></span></span>
+    <span>LIVE ON CREDITCOIN CC3 · 102031</span>
+    <span>10 CONTRACTS · SOURCE VERIFIED</span>
+    <span>120 TESTS · 6/6 ATTACKS BLOCKED · 11/11 CLAIMS SELF-AUDITED</span>
+  </div>
+</section>
+
+<!-- ══ 02 · the problem ════════════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">02</span>
+  <div class="stack">
+    <div class="eyebrow">The problem — in Attestcoin's own words</div>
+    <h2>&ldquo;Billions lost to bridge exploits, again and again.&rdquo;</h2>
+    <p class="lead">
+      July 2023: Multichain ran wrapped assets across ten chains against custodied
+      reserves, held roughly $1.26B, and lost about $126–130M when centralised
+      control failed. Every chain could have shown a healthy reserve check while the
+      system as a whole was insolvent — because no per-chain design ever looks
+      at the other chains.
+    </p>
+    <p>
+      A year earlier, Cashio holders found their tokens were backed by nothing and
+      $52.8M evaporated. In neither case was there a moment at which the system said
+      <em>the collateral is going</em>. Nothing in it was looking.
+    </p>
+    <p>
+      This is structural, not one team's bug. A mint contract on chain B cannot see
+      chain A, so it asks someone. Proof-of-reserve systems answer that question
+      honestly — but the answer is still a <strong>report</strong>: a number, from a
+      party you must trust, about a moment already past. It says nothing about money
+      already promised to someone else, nothing about supply on other chains, and
+      nothing about what happened between reports.
+    </p>
+  </div>
+</section>
+
+<!-- ══ 03 · the thesis, shown ══════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">03</span>
+  <div class="stack">
+    <div class="eyebrow">The difference, in one picture</div>
+    <h2>A vault holds $1,000,000. Against it, $600,000 of tokens are issued.</h2>
+    <p>The owner announces they are taking $300,000 out. The money has not moved yet — but it is spoken for.</p>
+  </div>
+  <div class="versus">
+    <div class="col" data-tone="wrong">
+      <div class="col-name">An ordinary reserve check</div>
+      <div class="figure">$400,000</div>
+      <div class="figure-cap">more tokens may be issued</div>
+      <p><strong>&ldquo;Everything is fine.&rdquo;</strong><br>It can still see $1,000,000 in the vault, so it still counts all of it.</p>
+    </div>
+    <div class="col" data-tone="right">
+      <div class="col-name">MintBound</div>
+      <div class="figure">$100,000</div>
+      <div class="figure-cap">more tokens may be issued</div>
+      <p><strong>&ldquo;$300,000 of that is leaving.&rdquo;</strong><br>It stopped counting the moment the exit was announced.</p>
+    </div>
+  </div>
+  <p>
+    The $300,000 gap between those two numbers is exactly the withdrawal. Anyone
+    trusting the left-hand figure issues tokens against money already on its way out
+    the door. <strong>That is how holders discover a token was backed by nothing —
+    not through fraud, but through arithmetic nobody was doing.</strong>
+  </p>
+</section>
+
+<!-- ══ 04 · what it is ═════════════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">04</span>
+  <div class="stack">
+    <div class="eyebrow">What it is</div>
+    <h2>A lock on the mint function that only a proof can open.</h2>
+    <p class="lead">
+      MintBound holds mint authority over a wrapped asset and refuses to use it
+      unless Creditcoin's Block Prover precompile has cryptographically verified —
+      <em>inside the minting transaction</em> — that the backing is there.
+    </p>
+    <p>
+      Not an oracle report. Not a monthly attestation. A Merkle inclusion proof of a
+      specific source-chain transaction, checked by native code, per mint.
+    </p>
+    <p>
+      It is infrastructure, not an application: the primitive other RWA products on
+      Creditcoin can sit on so the assets they represent cannot quietly become
+      unbacked liabilities.
+    </p>
+  </div>
+</section>
+
+<!-- ══ 05 · mechanisms ═════════════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">05</span>
+  <div class="stack">
+    <div class="eyebrow">Attestcoin integration — six mechanisms, one invariant</div>
+    <h2>Depth, not a checkpoint.</h2>
+    <p>Remove either precompile and there is no product. Attestcoin is the guard's only source of truth about the source chain.</p>
+  </div>
+  <div class="mechs">
+    <div class="mech">
+      <div class="mech-k">01 · THE ENABLING TRICK</div>
+      <h3>State-to-event lifting</h3>
+      <p>The prover proves <em>transactions</em>; solvency is a question about <em>state</em>. A permissionless call makes the vault emit its own balance into a log — so a balance becomes a fact about a transaction, and therefore provable. This turns a transaction oracle into a <strong>state oracle for any dApp on Creditcoin</strong>.</p>
+    </div>
+    <div class="mech">
+      <div class="mech-k">02 · PRECOMPILE 0x0FD2</div>
+      <h3>Verified per mint</h3>
+      <p>Merkle and continuity proofs checked in the same transaction that mints. No reporter anywhere in the path — <code>trustedParties()</code> returns 0.</p>
+    </div>
+    <div class="mech">
+      <div class="mech-k">03 · PRECOMPILE 0x0FD3</div>
+      <h3>Freshness read on-chain</h3>
+      <p>The contract asks Creditcoin itself how stale the proof is. No off-chain party can lie about it, because no off-chain party is asked.</p>
+    </div>
+    <div class="mech">
+      <div class="mech-k">04 · THE WINDOW</div>
+      <h3>Announced exits stop counting</h3>
+      <p>Withdrawals must be announced and are timelocked. An announced exit leaves the backing immediately, not on execution. The delay is required to exceed 2&times; measured detection latency, enforced at construction.</p>
+    </div>
+    <div class="mech">
+      <div class="mech-k">05 · BOTH SIDES</div>
+      <h3>Liabilities across every chain</h3>
+      <p>Remote wrapped supply is proven the same way and summed. A registered chain that goes quiet freezes minting — unknown liability is never treated as zero.</p>
+    </div>
+    <div class="mech">
+      <div class="mech-k">06 · BETWEEN PROOFS</div>
+      <h3>Continuity under bond</h3>
+      <p>&ldquo;No outflow over this interval&rdquo; is expensive to prove and cheap to refute — one inclusion proof does it. So it is asserted under bond, and the bond pays the challenger.</p>
+    </div>
+  </div>
+  <div class="note">
+    <p>
+      Attestcoin secures itself with <em>&ldquo;independent verifiers, called Attestors,
+      who each confirm what's true and put real money on the line.&rdquo;</em> Mechanism 06
+      applies that same economic pattern one layer up: where the protocol bonds attestors
+      to secure <strong>facts</strong>, we bond claimants to secure the <strong>intervals
+      between facts</strong>. We did not merely call the protocol — we extended
+      its own security model to the gap it does not cover.
+    </p>
+  </div>
+</section>
+
+<!-- ══ 06 · the invariant ══════════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">06</span>
+  <div class="stack">
+    <div class="eyebrow">The rule everything serves</div>
+    <div class="rule-box">
+      <p>
+        Total liabilities across all chains, plus this mint, must not exceed the
+        proven reserve minus announced exits, after haircut.
+      </p>
+    </div>
+    <h3>Two properties follow, and they are the actual specification</h3>
+    <ul>
+      <li><strong>No mint may ever leave supply above the proven ceiling.</strong></li>
+      <li><strong>If supply is above the ceiling for any reason, minting is already frozen.</strong></li>
+    </ul>
+    <div class="note">
+      <p>
+        The tidier single-statement version — <code>supply &le; ceiling</code> at all times —
+        is <strong>false</strong>, and our own invariant fuzzer proved it false against an
+        earlier draft of this specification. A legitimate reserve decrease after minting
+        is a counterexample. We restated the claim rather than weakening the system to
+        fit it.
+      </p>
+    </div>
+    <p class="lead">
+      Underneath sits one asymmetry: <strong>increasing liabilities requires a fresh
+      proof; decreasing them requires nothing.</strong> Every failure mode — stale
+      proof, silent chain, absent worker, unreachable prover — lands on the same side.
+      Minting stops. Redeeming never does.
+    </p>
+  </div>
+</section>
+
+<!-- ══ 07 · live ═══════════════════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">07</span>
+  <div class="stack">
+    <div class="eyebrow">What is live</div>
+    <h2>Ten contracts, deployed and source-verified.</h2>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-v">382,578</div><div class="kpi-l">gas — <code>mintWithProof</code>, including proof verification and the full aggregate invariant</div></div>
+    <div class="kpi"><div class="kpi-v">368,592</div><div class="kpi-l">gas — <code>submitReserveSnapshot</code></div></div>
+    <div class="kpi"><div class="kpi-v">10 / 10</div><div class="kpi-l">contracts with published source — Blockscout and Sourcify</div></div>
+    <div class="kpi"><div class="kpi-v ok">0</div><div class="kpi-l">parties that must be trusted for the reserve figure</div></div>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Creditcoin CC3 · 102031</th><th>Address</th></tr></thead>
+      <tbody>
+        <tr><td>MintBoundASC</td><td class="addr">0x91FAF68A9E5C0e013b5c01b7AACF4C841A6382f8</td></tr>
+        <tr><td>WrappedAsset</td><td class="addr">0x1f42B80ebac56AF3f023997A4240D3B97476A557</td></tr>
+        <tr><td>ProvenReserveFeed</td><td class="addr">0x5578784ddE6c05c0370119FF68c439847CB307D7</td></tr>
+        <tr><td>SolvencyContinuity</td><td class="addr">0x448292774b807B49025002e256d004378f788d07</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A full deposit → attestation → proof → mint cycle has completed end to end on live infrastructure. Three further contracts on CC3 and three on Sepolia; all addresses in the repository.</p>
+</section>
+
+<!-- ══ 08 · verify it yourself ═════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">08</span>
+  <div class="stack">
+    <div class="eyebrow">The part we would most like you to test</div>
+    <h2>You do not have to believe any of this.</h2>
+    <p class="lead">
+      No key. No funded account. No clone. The Proof Builder is a read API and the
+      guard's entry points are reachable by <code>eth_call</code>, so every claim on
+      these pages can be checked by a stranger who has been trusted with nothing.
+    </p>
+  </div>
+  <div class="rule-box">
+    <p>
+      <strong class="mono">npx @mintbound/cli claims</strong><br>
+      Takes every factual claim in this deck, resolves it against live chain state and the
+      block explorer, and <strong>exits non-zero if any of them fails</strong>.
+    </p>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-v" style="font-size:15px;line-height:1.5">cli status</div><div class="kpi-l">the live balance sheet and assurance vector</div></div>
+    <div class="kpi"><div class="kpi-v" style="font-size:15px;line-height:1.5">cli attack</div><div class="kpi-l">fires the documented attacks at the live guard and prints the reverts</div></div>
+    <div class="kpi"><div class="kpi-v" style="font-size:15px;line-height:1.5">cli verify</div><div class="kpi-l">walks any source transaction through the precompile</div></div>
+  </div>
+  <div class="note">
+    <p>
+      The first version of that command reported <span class="mono">10/10</span> while the
+      deployment was frozen on a proof past its staleness bound — it checked only
+      the claims we thought to list, which is exactly the bias a self-audit exists to
+      remove. The freshness claim now checks the safety property rather than the
+      flattering one: not <em>&ldquo;minting works right now&rdquo;</em> but
+      <em>&ldquo;a stale proof freezes minting rather than being used anyway.&rdquo;</em>
+      <strong>A self-audit that cannot return FAIL is marketing in a monospace
+      font.</strong>
+    </p>
+  </div>
+  <p>
+    <strong>6/6 attacks blocked</strong> — five stopped by the Block Prover precompile,
+    one by the guard before it got that far. We report which, because the distinction
+    matters: all six carry forged proof material, so the live suite proves there is no
+    path <em>around</em> the precompile. It does not exercise the guard's internal
+    rejections, which need a valid proof with malicious contents and are covered in the
+    unit suite instead.
+  </p>
+</section>
+
+<!-- ══ 09 · evidence ═══════════════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">09</span>
+  <div class="stack">
+    <div class="eyebrow">Evidence</div>
+    <h2>Every claim maps to something you can run.</h2>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Suite</th><th class="n">Count</th><th>What it covers</th></tr></thead>
+      <tbody>
+        <tr><td>Unit</td><td class="n">113</td><td>Business logic, rejection paths, Chainlink compatibility, evidence grading, source-chain contracts</td></tr>
+        <tr><td>Invariant fuzzing</td><td class="n">7 &times; 256</td><td>Randomised call sequences against the propositions in <code>INVARIANTS.md</code></td></tr>
+        <tr><td>Live infrastructure</td><td class="n">13</td><td>Real CC3 precompiles, Proof Builder, attestation, deployed state</td></tr>
+        <tr><td>Live attacks</td><td class="n">6</td><td>Real <code>eth_call</code>s against the deployed guard</td></tr>
+        <tr><td>Line coverage</td><td class="n">83.9%</td><td><code>SupplyBeacon</code> 100% · <code>MintBoundASC</code> 90.6% · <code>ReserveVault</code> 81.9%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">
+    <p>
+      Coverage is reported here because of what it caught, not what it scored. It found
+      <code>SupplyBeacon</code> at <strong>0%</strong> — the contract behind one of the six
+      mechanisms above had never been executed by a test, while the suite proved only that
+      the guard <em>consumed</em> its logs correctly. Nothing was wrong with the contract;
+      the evidence for it did not exist, and a growing test count concealed that. It is
+      now at 100%.
+    </p>
+  </div>
+</section>
+
+<!-- ══ 10 · autopsy ════════════════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">10</span>
+  <div class="stack">
+    <div class="eyebrow">What is not novel — published deliberately</div>
+    <h2>Five of our own claims, killed.</h2>
+    <p>A claim that does not survive scrutiny is worth less than no claim. So here is the autopsy, including the one a rival in this hackathon killed for us.</p>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Claim we considered</th><th>Verdict</th></tr></thead>
+      <tbody>
+        <tr><td>Reserve-gated minting</td><td><span class="no">Not novel.</span> Chainlink Secure Mint does this.</td></tr>
+        <tr><td>The aggregate check as our differentiator</td><td><span class="no">Not novel.</span> Secure Mint checks the aggregate too.</td></tr>
+        <tr><td>Cross-chain supply aggregation</td><td><span class="no">Not novel.</span> LayerZero OFT and Chainlink CCT do this.</td></tr>
+        <tr><td>Optimistic verification with bonded dispute</td><td><span class="no">Not novel.</span> UMA and optimistic rollups got there first.</td></tr>
+        <tr><td>Bonded assertion of a negative, refutable by one proof</td><td><span class="no">Not even uniquely ours this season.</span> <code>PugarHuda/utuh</code> built the same primitive for set completeness, more generally, three days before we looked.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    What survives is narrow, and survives <em>because</em> it is narrow:
+    <strong>state-to-event lifting on Attestcoin</strong>;
+    <strong>encumbrance-aware bounds tied to measured attestation latency</strong>;
+    and <strong>the composition</strong> — reserve proof, liability proof, encumbrance,
+    freshness and continuity resolved into one bound, evaluated inside the minting
+    transaction, with zero trusted parties in that path.
+  </p>
+</section>
+
+<!-- ══ 11 · the field ══════════════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">11</span>
+  <div class="stack">
+    <div class="eyebrow">Where this sits</div>
+    <h2>Ninety-two projects. One asks whether the money is still there.</h2>
+    <p>We surveyed the public repositories built against Attestcoin this season rather than guessing, and read the closest candidates in full.</p>
+  </div>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>What people built</th><th class="n">Roughly</th></tr></thead>
+      <tbody>
+        <tr><td>Credit scoring and portable reputation</td><td class="n">~15</td></tr>
+        <tr><td>Settlement and payment verification</td><td class="n">~10</td></tr>
+        <tr><td>Monitoring, alerting, autonomous agents</td><td class="n">~8</td></tr>
+        <tr><td><strong>Reserve solvency</strong></td><td class="n ok"><strong>1</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Everyone else proves an <strong>event happened</strong> — a payment settled, a loan
+    was repaid, a delivery occurred — then acts on it. MintBound proves <strong>state</strong>,
+    and enforces a balance-sheet invariant on it.
+  </p>
+  <div class="note">
+    <p>
+      This is a claim about category, not quality; several of these projects are
+      excellent. One of them, a confidential settlement pool, states plainly that it has
+      <em>&ldquo;no on-chain solvency invariant&rdquo;</em> and that custody is
+      <em>&ldquo;a declared trust assumption.&rdquo;</em> That is an honest description of
+      the gap — and independent confirmation it is real.
+    </p>
+  </div>
+</section>
+
+<!-- ══ 12 · adoption ═══════════════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">12</span>
+  <div class="stack">
+    <div class="eyebrow">Adoption</div>
+    <h2>It speaks the incumbent's language.</h2>
+    <p class="lead">
+      <code>ProvenReserveFeed</code> implements Chainlink's <code>AggregatorV3Interface</code>.
+      Change one address in an existing proof-of-reserve integration and nothing else has
+      to be rewritten.
+    </p>
+    <p>
+      We are not claiming to be a better Chainlink — Secure Mint already gates minting on
+      proof of reserve, and does the aggregate check correctly. We are a <strong>drop-in
+      cryptographic evidence backend for the interface the industry already uses</strong>.
+      The repository ships Chainlink's own Secure Mint pattern, written to their published
+      spec with no knowledge of MintBound, running unmodified against our feed in the test
+      suite.
+    </p>
+    <p>
+      We also publish something no other reserve system does:
+      <code>trustedParties(asset)</code> — <span class="ok">0</span> for a
+      cryptographically proven reserve, <span class="mono">1</span> for an oracle-reported
+      one. An integrating protocol can read how much trust its own evidence requires.
+    </p>
+    <div class="rule-box">
+      <p>
+        The rules ask for cross-chain logic <em>&ldquo;without relying on centralized
+        oracle operators.&rdquo;</em> Most projects answer that sentence with a paragraph.
+        We answer it with a number the contract publishes:
+        <strong class="mono">trustedParties() == 0</strong>.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 13 · limits ═════════════════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">13</span>
+  <div class="stack">
+    <div class="eyebrow">Limits — stated before you find them</div>
+    <h2>What this does not do.</h2>
+  </div>
+  <div class="scroll">
+    <table>
+      <tbody>
+        <tr><td>Privacy</td><td>Nothing here is private. Reserve balances and the vault address are public by construction — emitter binding requires it. Commitments and range proofs would fix it; we did not build that.</td></tr>
+        <tr><td>Continuity</td><td>Optimistic, not absolute. Inside the liveness window the no-outflow claim is economically backed, not cryptographically established. It is a game, not a theorem.</td></tr>
+        <tr><td>Latency</td><td>Roughly nine minutes from source event to provability. A protocol property — the cost of not trusting a reporter — and mechanism 04 is what makes it survivable rather than fatal.</td></tr>
+        <tr><td>Chain registration</td><td>Trusted. The bound sums over <em>registered</em> chains; one nobody registered contributes zero and is invisible. This is the largest remaining trust assumption in the system, and we would rather name it than have it found.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ 14 · close ══════════════════════════════════════════════════════════ -->
+<section class="slide">
+  <span class="num">14</span>
+  <div class="stack">
+    <div class="eyebrow">Why this belongs in the ecosystem</div>
+    <h2>Auditability as the product, not the afterthought.</h2>
+    <p class="lead">
+      Where a local auditor's signature carries little weight and cross-border recourse
+      is theoretical, a monthly attestation is not assurance. Cryptographic proof is the
+      only form of assurance that travels unchanged — identical for a lender in Lagos and
+      a lender in London.
+    </p>
+    <p>
+      Creditcoin's own mission is credit where institutions are weakest. Every RWA product
+      built on it inherits one question it cannot answer for itself: <em>is the thing
+      backing this still there?</em> MintBound answers that question in the only way that
+      does not require trusting the person being asked — and it does so through the
+      Attestcoin Protocol specifically, because until a native precompile made verification
+      cost 382,578 gas, asking per mint was economically absurd.
+    </p>
+    <div class="rule-box">
+      <p><strong>Increasing liabilities requires a fresh proof. Decreasing them requires nothing.</strong> Everything else is a consequence.</p>
+    </div>
+  </div>
+  <div class="title-meta">
+    <span><span class="wordmark">Mint<span class="bound">Bound</span></span></span>
+    <span>github.com/Lawalgiyath/MintGuard</span>
+    <span>npx @mintbound/cli claims</span>
+  </div>
+</section>

@@ -376,6 +376,7 @@ that any other project in this hackathon can reuse.
 
 ## Repository
 
+- [`docs/deck.html`](docs/deck.html) — the submission deck, 14 slides, prints to PDF
 - [`docs/ATTESTCOIN_INTEGRATION.md`](docs/ATTESTCOIN_INTEGRATION.md) — setup + how the protocol is used (submission requirement)
 - [`docs/INVARIANTS.md`](docs/INVARIANTS.md) — formal safety properties and the tests that check them
 - [`docs/EVIDENCE.md`](docs/EVIDENCE.md) — every claim mapped to a runnable artifact

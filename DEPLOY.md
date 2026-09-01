@@ -97,12 +97,21 @@ blocks and that wait is the cost of not trusting a reporter.
 ## 4. Share the deck as a PDF
 
 The submission form asks for a **PDF URL**. An artifact link is private by default,
-so a judge clicking an unshared one gets a login wall rather than a deck.
+so a judge clicking an unshared one gets a login wall rather than a deck — which is
+a single point of failure on a required field.
 
-Open the deck, print to PDF (the page has `@page` rules that lay it out one slide
-per landscape page on a white ground), and upload that file wherever the form wants
-it. If you would rather link the artifact directly, share it publicly from the
-page's share menu first, and check the link in a private browser window.
+The deck therefore also lives in this repository at
+[`docs/deck.html`](docs/deck.html). That copy is public the moment the repo is, and
+needs nothing from anyone.
+
+To produce the PDF the form asks for: open `docs/deck.html` in a browser and print
+to PDF. The page carries `@page` rules that lay it out one slide per landscape page
+on a white ground, so it prints as a deck rather than as a screenshot of a dark
+website.
+
+If you would rather link the artifact directly, share it publicly from the page's
+share menu first, then check the link in a private browser window — not in the tab
+where you are already signed in, which will always work and tells you nothing.
 
 ---
 

@@ -25,6 +25,13 @@ export function BoundBar({ state, health }: { state: SolvencyState; health: Heal
   const tickPct = Math.min(100, pct(discountedReserve));
 
   const breached = health === "breached";
+
+  // A solvent system on an expired proof is NOT breached — it is frozen, which is
+  // the safety property doing its job. Rendering that as an unqualified "the bound
+  // holds" would let the instrument read healthier than the system actually is, and
+  // an instrument that flatters its own operator is the thing this project exists to
+  // replace.
+  const stale = !breached && !state.fresh;
   const infinite = isInfiniteRatio(state.collateralRatioBps);
 
   return (
@@ -36,17 +43,32 @@ export function BoundBar({ state, health }: { state: SolvencyState; health: Heal
             {infinite ? "∞" : formatRatio(state.collateralRatioBps)}
           </div>
           <div className="stat-sub" style={{ marginTop: 8 }}>
-            {breached
-              ? "Outstanding supply exceeds the proven ceiling. Minting is frozen."
-              : state.outstandingSupply === 0n
-                ? "No supply outstanding. Every token minted from here must clear the bound."
-                : `Every ${state.symbol} outstanding is backed by proven reserve.`}
+            {breached ? (
+              "Outstanding supply exceeds the proven ceiling. Minting is frozen."
+            ) : stale ? (
+              <>
+                The last proof is {state.stalenessBlocks.toLocaleString()} blocks old
+                against a bound of {state.maxStalenessBlocks.toLocaleString()}, so minting
+                is frozen until a fresh one lands.{" "}
+                <b>This is the guarantee working, not an outage</b> — no fresh proof, no
+                new liabilities. Redemption is unaffected.
+              </>
+            ) : state.outstandingSupply === 0n ? (
+              "No supply outstanding. Every token minted from here must clear the bound."
+            ) : (
+              `Every ${state.symbol} outstanding is backed by proven reserve.`
+            )}
           </div>
         </div>
 
-        {!breached && health === "proven" && (
+        {!breached && !stale && health === "proven" && (
           <div className="held" role="status">
             <span aria-hidden="true">◆</span> THE BOUND HOLDS
+          </div>
+        )}
+        {stale && (
+          <div className="held" style={{ color: "var(--stale)" }} role="status">
+            <span aria-hidden="true">◆</span> PROOF STALE — MINT FROZEN
           </div>
         )}
         {breached && (

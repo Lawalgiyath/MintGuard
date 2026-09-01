@@ -823,6 +823,95 @@ describe("MintBound", () => {
       expect(await feed.decimals()).to.equal(18);
     });
 
+    // The rest of the AggregatorV3Interface surface. An integrator's code calls these,
+    // not just latestRoundData, and "drop-in compatible" is only true if the whole
+    // interface behaves. A coverage run found every one of them unexercised.
+    it("serves the descriptive half of the interface an integrator reads", async () => {
+      await proveReserve(1000n * E18, 1n);
+      const feed = await ethers.deployContract("ProvenReserveFeed", [
+        ascAddr,
+        assetAddr,
+        8,
+        "mTUSD Proven Reserve",
+      ]);
+
+      expect(await feed.description()).to.equal("mTUSD Proven Reserve");
+      expect(await feed.version()).to.equal(1n);
+      expect(await feed.decimals()).to.equal(8);
+    });
+
+    it("reverts rather than returning a zero answer when nothing has been proven", async () => {
+      // A feed with no data must fail loudly. Returning 0 would read to a Secure Mint
+      // integration as "the reserve is empty", which is a different and much more
+      // dangerous statement than "I do not know yet".
+      const feed = await ethers.deployContract("ProvenReserveFeed", [
+        ascAddr,
+        attacker.address, // an asset the guard has never seen
+        18,
+        "unknown asset",
+      ]);
+
+      await expect(feed.latestRoundData()).to.be.revertedWithCustomError(feed, "NoData");
+    });
+
+    it("serves a historical round only when the id actually matches", async () => {
+      await proveReserve(1000n * E18, 1n);
+      const feed = await ethers.deployContract("ProvenReserveFeed", [
+        ascAddr,
+        assetAddr,
+        18,
+        "mTUSD Proven Reserve",
+      ]);
+
+      const [currentRound, currentAnswer] = await feed.latestRoundData();
+
+      // The current round is served through getRoundData unchanged.
+      const [rid, answer] = await feed.getRoundData(currentRound);
+      expect(rid).to.equal(currentRound);
+      expect(answer).to.equal(currentAnswer);
+
+      // Any other round reverts. This feed keeps no history, and inventing an answer
+      // for a round it never served would be worse than admitting it has none.
+      await expect(feed.getRoundData(currentRound + 1n)).to.be.revertedWithCustomError(
+        feed,
+        "NoData",
+      );
+      await expect(feed.getRoundData(0n)).to.be.revertedWithCustomError(feed, "NoData");
+    });
+
+    it("tracks the round id forward as new proofs land", async () => {
+      await proveReserve(1000n * E18, 1n);
+      const feed = await ethers.deployContract("ProvenReserveFeed", [
+        ascAddr,
+        assetAddr,
+        18,
+        "mTUSD Proven Reserve",
+      ]);
+      const [firstRound] = await feed.latestRoundData();
+
+      await proveReserve(1500n * E18, 2n, SRC_HEIGHT + 10n);
+      const [secondRound, secondAnswer] = await feed.latestRoundData();
+
+      expect(secondRound).to.be.greaterThan(firstRound);
+      expect(secondAnswer).to.equal(1500n * E18);
+    });
+
+    it("exposes solvency and trust directly, beyond the Chainlink shape", async () => {
+      await proveReserve(1000n * E18, 1n);
+      const feed = await ethers.deployContract("ProvenReserveFeed", [
+        ascAddr,
+        assetAddr,
+        18,
+        "mTUSD Proven Reserve",
+      ]);
+
+      // Strictly additive: an integrator that only knows AggregatorV3Interface never
+      // calls these, and one that does gets a stronger signal than the price shape
+      // can carry.
+      expect(await feed.isSolvent()).to.equal(true);
+      expect(await feed.trustedParties()).to.equal(0);
+    });
+
     it("reports the ENCUMBRANCE-ADJUSTED reserve, which ordinary PoR does not", async () => {
       // 1000 held, 400 announced for withdrawal. A conventional PoR feed would report
       // the gross 1000 and leave encumbrance to an auditor's footnote.
