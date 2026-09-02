@@ -1,9 +1,9 @@
 # MintBound — Verified Research Ledger
 
-Every claim below was verified against a live endpoint or an installed package on
-**2026-08-25**, not from documentation prose. Items marked ⚠️ are **corrections to
-the original concept note** — the note asserted something that is not true of the
-shipped protocol.
+Every fact below was verified against a live endpoint or an installed package on
+**2026-08-25**, not read from documentation prose. Items marked ⚠️ are places where the
+**shipped protocol differs from the available reference material** — each one cost real
+time to find, and is recorded here so it costs the next team less.
 
 ---
 
@@ -24,14 +24,15 @@ shipped protocol.
 `get_supported_chains()` returned exactly two source chains, confirming the note's
 `chainKey = 1` assumption for Sepolia is correct.
 
-### ⚠️ Correction 1 — the prover URL in the concept note does not exist
-The note used `https://prover.usc-testnet.creditcoin.network`. That host does not
-resolve. The real testnet endpoint is `proof-gen-api.cc3-testnet.creditcoin.network`
-(`prover.cc3-testnet.creditcoin.network` also redirects there).
+### ⚠️ Finding 1 — the older prover host does not resolve
+`prover.usc-testnet.creditcoin.network` does not resolve. The live testnet endpoint is
+`proof-gen-api.cc3-testnet.creditcoin.network`; `prover.cc3-testnet.creditcoin.network`
+redirects there. USC Testnet v2 was deprecated on 27 May 2026 and CC3 is the current
+target.
 
-### ⚠️ Correction 2 — the SDK API in the concept note is from an older version
-The note used `proofGenerator.api.ProverAPIProofGenerator`. In the shipped
-`@gluwa/usc-sdk@0.18.0` the class is:
+### ⚠️ Finding 2 — the SDK class named in the guided tutorials no longer exists
+The guided tutorials describe `proofGenerator.api.ProverAPIProofGenerator`. In the
+shipped `@gluwa/usc-sdk@0.18.0` that path does not exist; the class is:
 
 ```ts
 import { proofProvider, chainInfo } from '@gluwa/usc-sdk';
@@ -43,7 +44,7 @@ const proof = await proofBuilder.getProof(txHash);   // -> ProofResult
 `ProofResult.data` is a `ContinuityResponse`:
 `{ chainKey, headerNumber, txBytes, merkleProof: { root, siblings }, continuityProof: { lowerEndpointDigest, roots } }`.
 
-### ⚠️ Correction 3 — the `EvmV1Decoder` import path moved
+### ⚠️ Finding 3 — the `EvmV1Decoder` import path moved in 0.2.0
 Reference examples import `@gluwa/usc-contracts/contracts/decoding/EvmV1Decoder.sol`
 (valid in `0.1.2`). In `@gluwa/usc-contracts@0.2.0` — the version we pin — the path is:
 
@@ -57,10 +58,11 @@ Using the old path against 0.2.0 fails to compile. This is a real trap.
 
 ## 2. The finding that changes the architecture
 
-The concept note's freshness rule is
-`currentSrcHeight - attestedAtBlock <= MAX_STALENESS_BLOCKS`, but the note never
-says where `currentSrcHeight` comes from. If a worker supplies it, the entire
-"no trusted reporter" claim collapses — a lying worker could claim any height.
+A freshness rule of the shape
+`currentSrcHeight - attestedAtBlock <= MAX_STALENESS_BLOCKS` is only as trustworthy as
+its source for `currentSrcHeight`. If an off-chain worker supplies that number, the
+entire "no trusted reporter" claim collapses — a lying worker could assert any height it
+liked and a stale proof would pass.
 
 **The ChainInfo precompile makes this trustless.** Extracted from the SDK's embedded
 ABI and confirmed live:
@@ -79,15 +81,15 @@ them in snake_case verbatim.
 
 MintBound reads the current attested source height *from the chain itself* inside
 the mint transaction. No off-chain input participates in the freshness decision.
-This closes the last hole in the "zero trusted reporter" claim and is a stronger
-statement than the concept note was able to make.
+This is what closes the last hole in the "zero trusted reporter" claim: no off-chain
+input participates in the freshness decision at all.
 
 ---
 
 ## 3. Verified precompile interface
 
-`INativeQueryVerifier` (from `@gluwa/usc-contracts@0.2.0`) exposes **more than the
-note assumed** — notably `view` variants and batch verification:
+`INativeQueryVerifier` (from `@gluwa/usc-contracts@0.2.0`) exposes more than the
+reference examples use — notably `view` variants and batch verification:
 
 ```solidity
 function verify(uint64 chainKey, uint64 height, bytes calldata encodedTransaction,

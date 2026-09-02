@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "start": "tsx src/worker.ts",
-    "snapshot": "tsx src/snapshot-once.ts",
     "typecheck": "tsc --noEmit",
     "verify:live": "tsx src/verify-live.ts"
   },

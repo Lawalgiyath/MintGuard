@@ -50,6 +50,9 @@ npm run verify:live           # 13 checks against live CC3 infrastructure — ne
 cd packages/contracts
 npx hardhat run scripts/deploy-sepolia.ts    --network sepolia
 npx hardhat run scripts/deploy-creditcoin.ts --network creditcoin
+npx hardhat run scripts/deploy-modules.ts    --network sepolia      # SupplyBeacon
+npx hardhat run scripts/deploy-modules.ts    --network creditcoin   # SolvencyContinuity
+npx hardhat run scripts/verify-source.ts     --network creditcoin   # publish source
 npx hardhat run scripts/attack.ts            --network creditcoin
 
 npm run worker                # untrusted relay
