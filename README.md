@@ -387,36 +387,35 @@ ETHEREUM SEPOLIA (chainKey 1)            CREDITCOIN CC3 (102031)
 ## Repository
 
 ```
-packages/
-  contracts/     Solidity + Hardhat 3. 113 unit tests + 7 invariants.
-    contracts/sepolia/       ReserveVault, SupplyBeacon, TestUSD
-    contracts/creditcoin/    MintBoundASC, WrappedAsset, ProvenReserveFeed,
-                             SolvencyContinuity,
-                             examples/{SolvencyGatedCredit, SecureMintReference}
-    contracts/interfaces/    IChainInfo (reconstructed), ISolvencyOracle
-    contracts/mocks/         Precompile stand-ins, injected at 0x0FD2 / 0x0FD3
-    scripts/                 deploy-sepolia, deploy-creditcoin, attack
-  cli/           npx mintbound-cli — status / verify / attack, read-only
-  worker/        Untrusted relay: snapshot heartbeat + mint relay, proof capture
-  dashboard/     Next.js instrument — LIVE / REPLAY / SIMULATED
-SUBMISSION.md    Paste-ready DoraHacks copy, every claim checkable
-DEPLOY.md        The four things that must be reachable before judging
+README.md          You are here
+SUBMISSION.md      Paste-ready DoraHacks copy, every claim checkable
+DEPLOY.md          What must be reachable before judging
 docs/
-  deck.html      The submission deck — 14 slides, prints to PDF
-  ATTESTCOIN_INTEGRATION.md  Setup + how the protocol is used, end to end
-  INVARIANTS.md    Formal safety properties, and the tests that check them
+  README.md        Index — start here for anything below
+  deck.html        The submission deck. 13 slides, prints to PDF
+  ATTESTCOIN_INTEGRATION.md   Setup and all six integration points
   EVIDENCE.md      Every claim mapped to a runnable artifact
-  PITCH.md         One page, one idea — start here
-  WHY_BACK_THIS.md The investment case — human story, distribution, diligence, risks
-  PRIVACY.md       Why reserve amounts are public, and where privacy would matter
-  BUSINESS_MODEL.md Revenue model, the honest caveat, and the bus-factor answer
-  CROSS_CHAIN_LIABILITIES.md  Both sides of the balance sheet, across chains
-  CONTINUITY.md    Interval proof of reserve — hypothesis, prior art, experiments
-  RESEARCH.md      Verified protocol ground truth + 3 corrections to the concept note
-  COMPETITION.md   The surveyed field, and where MintBound actually differs
-  HEAD_TO_HEAD.md  Two-way comparison vs all 15 — including where they beat us
-  THREAT_MODEL.md  16 threats mapped to tests; the honest gaps
-  DESIGN.md        The design system and why it looks like this
+  INVARIANTS.md    Safety properties as formal propositions
+  THREAT_MODEL.md  Threats mapped to the mechanism that answers them
+  CROSS_CHAIN_LIABILITIES.md  Both sides of the balance sheet
+  CONTINUITY.md    Proof of reserve over an interval
+  RESEARCH.md      Verified protocol ground truth, measured live
+  BUSINESS_MODEL.md  Who pays, and what it returns to Creditcoin
+  WHY_BACK_THIS.md   The investment case
+  PITCH.md         One page, one idea
+  DESIGN.md        The design system behind the dashboard
+packages/
+  contracts/       Solidity + Hardhat 3. 118 unit tests + 7 invariants
+    contracts/sepolia/      ReserveVault, SupplyBeacon, TestUSD
+    contracts/creditcoin/   MintBoundASC, WrappedAsset, ProvenReserveFeed,
+                            SolvencyContinuity,
+                            examples/{SolvencyGatedCredit, SecureMintReference}
+    contracts/interfaces/   IChainInfo, ISolvencyOracle
+    contracts/mocks/        Precompile stand-ins, injected at 0x0FD2 / 0x0FD3
+    scripts/                deploy, attack, verify-source
+  cli/             npx mintbound-cli — claims / status / verify / attack
+  worker/          Untrusted relay: snapshot heartbeat and mint relay
+  dashboard/       Next.js instrument — LIVE / REPLAY / SIMULATED
 ```
 
 ---
@@ -428,7 +427,7 @@ npm install
 cp .env.example .env          # add DEPLOYER_PRIVATE_KEY, WORKER_PRIVATE_KEY
 
 # 1. Contracts
-npm run test:contracts        # 113 unit tests
+npm run test:contracts        # 118 unit tests
 npm run test:invariant        # 7 stateful invariants, 256 randomised runs each
 npm run verify:live           # 13 live checks against real CC3 infra — no funds needed
 

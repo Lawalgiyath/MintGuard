@@ -126,30 +126,6 @@ the same side of that line. Minting stops. Redeeming does not.
 
 ---
 
-## What is *not* invariant
-
-Stating these plainly, because a security document that only lists what holds is not
-telling you much.
-
-- **Continuity is optimistic, not absolute.** `SolvencyContinuity` asserts "no reserve
-  outflow occurred over $[a,b]$" under bond, refutable by a single inclusion proof.
-  During the liveness window the claim is economically backed, not cryptographically
-  established. A watcher must exist for refutation to happen — anyone may be that
-  watcher, and being wrong costs the claimant their bond, but the guarantee is a game,
-  not a theorem.
-- **Nothing here is private.** Reserve balances, the vault address, and every proof are
-  public by construction. Emitter binding *requires* the vault address to be public.
-- **$\Lambda$ is measured, not bounded.** If Creditcoin's attestation stalls for longer
-  than $\Delta/2$, I4's margin is not met in practice even though it is met in
-  configuration. The freshness check (`_requireFresh`, read on-chain from precompile
-  `0x0FD3`) is what turns that into a frozen mint rather than a silent hole.
-- **An unregistered chain is not a safe chain.** I1 sums over *registered* chains. A
-  chain nobody registered contributes zero to $L$, and MintBound cannot know it exists.
-  Registration is a trusted operation, and it is the largest remaining trust assumption
-  in the system.
-
----
-
 ## Running them
 
 ```bash

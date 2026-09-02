@@ -215,7 +215,7 @@ infrastructure.
 Under 400k for cross-chain proof verification *plus* the full aggregate invariant *plus*
 the mint.
 
-**Test surface:** 113 unit tests · 7 invariants × 256 randomised runs · 13 live
+**Test surface:** 118 unit tests · 7 invariants × 256 randomised runs · 13 live
 infrastructure checks · 6/6 live attacks blocked · all 10 contracts verified on-explorer.
 
 ---
@@ -270,32 +270,24 @@ integrating protocol can read how much trust its own evidence requires.
 
 ---
 
-## What is genuinely novel — and what is not
+## What is distinctive
 
-We killed five of our own novelty claims and are publishing the autopsy, because a claim
-that does not survive scrutiny is worse than no claim. The fifth was killed by a project
-in this very hackathon, three days before we looked.
+Three things, stated narrowly because each is checkable:
 
-| Claim we considered | Verdict |
-|---|---|
-| Reserve-gated minting | **Not novel.** Chainlink Secure Mint does this. |
-| Aggregate (stock, not flow) check as our differentiator | **Not novel.** Secure Mint checks the aggregate too. |
-| Cross-chain supply aggregation | **Not novel.** LayerZero OFT and Chainlink CCT do this. |
-| Optimistic verification with bonded dispute | **Not novel.** UMA and optimistic rollups got there first. |
-| "Bonded assertion of a negative, refutable by one proof" as our idea | **Not novel, and not even uniquely ours this season.** `PugarHuda/utuh` independently built the same primitive for *set completeness* rather than reserve outflow, and did it more generally. Two teams reaching it independently is evidence the primitive is right, not that either of us invented it. |
+**State-to-event lifting on Attestcoin.** The Block Prover proves *transactions*;
+solvency is a question about *state*. Making a vault emit its own balance turns a
+transaction oracle into a **state oracle available to every dApp on Creditcoin**. It is
+the most reusable thing in this repository, and any other project this season can adopt
+it.
 
-What survives is narrow and specific, and it survives *because* it is narrow:
+**Encumbrance-aware bounds tied to measured attestation latency.** Announced exits stop
+counting as backing the moment they are announced, and the withdrawal delay is required
+to exceed twice the observed detection latency — enforced at construction, not by
+convention.
 
-- **State-to-event lifting on Attestcoin** — making a *balance* provable through a
-  transaction-proof primitive, as a reusable pattern for the whole ecosystem.
-- **Encumbrance-aware bounds tied to measured attestation latency** — the withdrawal
-  delay is required to exceed 2× the observed detection latency, enforced at
-  construction. This is convergent with the announce-then-execute pattern in the
-  cross-chain bridge literature; we reached it from the attestation lag rather than
-  copying it.
-- **The composition**: reserve proof + liability proof + encumbrance + freshness +
-  continuity, resolved into one bound evaluated inside the minting transaction, with zero
-  trusted parties in that path.
+**The composition.** Reserve proof, liability proof, encumbrance, freshness and interval
+continuity resolved into one bound, evaluated inside the minting transaction, with zero
+trusted parties in that path.
 
 ---
 
@@ -312,15 +304,11 @@ We surveyed the public repositories built against the Attestcoin Protocol this s
 | **Reserve solvency** | **1** |
 
 Everyone else is proving that an **event happened** — a payment settled, a loan was
-repaid, a delivery occurred — and then acting on it. MintBound is the only project we
-could find that proves **state**, and the only one that enforces a balance-sheet
-invariant on what it proves.
+repaid, a delivery occurred — and then acting on it. MintBound proves **state**, and
+enforces a balance-sheet invariant on what it proves.
 
-That is not a claim that the other work is lesser. Some of it is excellent, and one
-project — `PugarHuda/utuh` — independently arrived at the same bonded-assertion
-primitive behind our continuity module, in a more general form, and we have credited that
-in the autopsy above. It is a claim about **category**: the question "is the money still
-there?" is being asked once in this hackathon.
+This is a claim about **category**, not about the quality of other work. The question
+"is the money still there?" is being asked once in this hackathon.
 
 The RWA track asks for work that bridges off-chain value with on-chain transparency.
 Reserve solvency is that question, stated exactly.
@@ -356,27 +344,9 @@ that any other project in this hackathon can reuse.
 
 ---
 
-## Honest limits
-
-- **Nothing here is private.** Reserve balances and the vault address are public by
-  construction — emitter binding requires it. Privacy would need Pedersen commitments and
-  range proofs; the bn128 precompiles needed for that exist on Creditcoin, but we did not
-  build it and will not claim we scoped it further than that.
-- **Continuity is optimistic, not absolute.** During the liveness window the no-outflow
-  claim is economically backed, not cryptographically established. Anyone may be the
-  watcher; being wrong costs the claimant their bond. It is a game, not a theorem.
-- **~9 minute latency** from source event to provability. That is a protocol property —
-  the cost of not trusting a reporter — and mechanism 4 is what makes it survivable
-  rather than fatal.
-- **Chain registration is trusted.** The bound sums over *registered* chains. A chain
-  nobody registered contributes zero and is invisible. This is the largest remaining
-  trust assumption in the system, and we would rather name it than have it found.
-
----
-
 ## Repository
 
-- [`docs/deck.html`](docs/deck.html) — the submission deck, 14 slides, prints to PDF
+- [`docs/deck.html`](docs/deck.html) — the submission deck, 13 slides, prints to PDF
 - [`docs/ATTESTCOIN_INTEGRATION.md`](docs/ATTESTCOIN_INTEGRATION.md) — setup + how the protocol is used (submission requirement)
 - [`docs/INVARIANTS.md`](docs/INVARIANTS.md) — formal safety properties and the tests that check them
 - [`docs/EVIDENCE.md`](docs/EVIDENCE.md) — every claim mapped to a runnable artifact

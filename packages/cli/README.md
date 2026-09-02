@@ -40,11 +40,10 @@ check that settles it — fetched now, from chains and explorers.
 Exits non-zero when any claim fails. That matters: a self-audit that cannot return FAIL
 is marketing in a monospace font.
 
-The first draft of this command omitted freshness and reported 10/10 while the deployment
-was frozen on a stale proof — which is precisely the bias a self-audit exists to remove.
-The freshness claim was added, and it checks the safety property rather than the
-convenient one: not *“minting works right now”* but *“a proof past the bound freezes
-minting rather than being used anyway.”*
+Claims resolve to **pass**, **fail**, or **unknown**. Unknown means the evidence could
+not be reached — a block explorer timed out, an RPC refused — which is not the same as a
+claim being false, so it is shown distinctly, never counted as verified, and does not set
+a failing exit code. Only a real failure does.
 
 ### `status`
 

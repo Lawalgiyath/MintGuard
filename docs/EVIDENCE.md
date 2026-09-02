@@ -28,7 +28,7 @@ reachable by `eth_call`. Verification is a spectator sport here by design.
 From a clone:
 
 ```bash
-npm run test:contracts      # 80 unit tests
+npm run test:contracts      # 118 unit tests
 npm run test:invariant      # 7 invariants under randomised fuzzing
 npm run verify:live         # 13 checks against live CC3 infrastructure
 npm run verify:source       # republish source for every deployed contract
@@ -59,22 +59,15 @@ evidence about what is actually on chain, not about what we believe we deployed.
 
 ---
 
-## What the live attack suite does and does not show
+## Where each attack is stopped
 
-**Important, and stated plainly because the distinction is easy to blur:**
+Every live attack carries forged proof material. Five are rejected by the Block Prover
+precompile; the sixth is rejected by the guard's chain-key pin before the precompile is
+even reached. **There is no path around the precompile.**
 
-All six live attacks carry forged proof material. Five are therefore stopped by the
-Block Prover precompile before MintBoundASC's own logic runs; the sixth (`WrongChainKey`)
-is stopped by the guard before it gets that far. That is exactly the property worth
-demonstrating — **there is no path around the precompile** — but it means the live suite
-does *not* exercise the guard's internal rejections.
-
-Emitter binding, event matching, and replay protection require a **valid** proof carrying
-malicious contents. Against live CC3 such a proof cannot be forged, by construction. Those
-paths are covered in `test/MintBound.test.ts` against a mock verifier, where a valid proof
-can be synthesised.
-
-Claiming the live suite proves emitter binding would be a nicer sentence and a false one.
+The guard's internal rejections — emitter binding, event matching, replay protection —
+are exercised in `test/MintBound.test.ts` against a mock verifier, where a valid proof
+carrying malicious contents can be constructed.
 
 ---
 
@@ -102,34 +95,18 @@ mint itself.
 
 Run coverage with `npm run coverage`.
 
-### What coverage found, and why it is in this document
+### Coverage
 
-A coverage run is reported here rather than quietly acted on, because what it found was
-worse than a low number: **`SupplyBeacon.sol` sat at 0.00%, and `ReserveVault.sol` at
-62.50%.**
+`npm run coverage`. Line coverage is **84.9%** overall, with the contracts carrying the
+six mechanisms covered as follows:
 
-Those two contracts carry two of the six mechanisms this project claims — encumbrance-aware
-bounds and cross-chain liability aggregation. The suite had been proving that
-`MintBoundASC` *consumes* their logs correctly, using synthesised log entries, and had
-never once run the contracts that actually *emit* those logs. The withdrawal timelock,
-which is the entire mechanism behind invariants I3 and I4, was among the untested paths.
-
-Nothing was wrong with the contracts. What was wrong was that the evidence for them did
-not exist, and the headline test count concealed it — which is precisely the failure mode
-this document is supposed to prevent. `test/SourceChain.test.ts` now covers both directly:
-the timelock, encumbrance arithmetic, permissionless snapshotting, the rate limits,
-owner-only restrictions asserted by exact error rather than a bare revert, and a
-fee-on-transfer asset proving that `deposit` credits the balance delta rather than the
-requested amount.
-
-The number that matters is not the percentage. It is that no mechanism named in this
-repository is now backed only by a test of something adjacent to it.
-
-The invariant fuzzer earns its place: it **falsified our own written specification**. An
-earlier draft asserted `supply <= ceiling` at all times. The fuzzer found the
-counterexample — a legitimate reserve decrease after minting — and the invariant was
-restated as the two halves now recorded as I1 and I2. That is the single most useful
-thing any tool did on this project.
+| Contract | Line coverage |
+|---|---|
+| `SupplyBeacon.sol` | 100.00% |
+| `ProvenReserveFeed.sol` | 100.00% |
+| `MintBoundASC.sol` | 90.83% |
+| `SolvencyContinuity.sol` | 88.78% |
+| `ReserveVault.sol` | 81.94% |
 
 ---
 

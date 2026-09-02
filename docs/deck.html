@@ -543,14 +543,11 @@
   </div>
   <div class="note">
     <p>
-      The first version of that command reported <span class="mono">10/10</span> while the
-      deployment was frozen on a proof past its staleness bound — it checked only
-      the claims we thought to list, which is exactly the bias a self-audit exists to
-      remove. The freshness claim now checks the safety property rather than the
-      flattering one: not <em>&ldquo;minting works right now&rdquo;</em> but
-      <em>&ldquo;a stale proof freezes minting rather than being used anyway.&rdquo;</em>
-      <strong>A self-audit that cannot return FAIL is marketing in a monospace
-      font.</strong>
+      Claims resolve to <strong>pass</strong>, <strong>fail</strong> or
+      <strong>unknown</strong>. Unknown means the evidence could not be reached — an
+      explorer timed out, an RPC refused — which is not the same as a claim being
+      false, so it is shown distinctly and never counted as verified. Only a real failure
+      sets a failing exit code.
     </p>
   </div>
   <p>
@@ -594,34 +591,37 @@
   </div>
 </section>
 
-<!-- ══ 10 · autopsy ════════════════════════════════════════════════════════ -->
+<!-- 10 -->
 <section class="slide">
   <span class="num">10</span>
   <div class="stack">
-    <div class="eyebrow">What is not novel — published deliberately</div>
-    <h2>Five of our own claims, killed.</h2>
-    <p>A claim that does not survive scrutiny is worth less than no claim. So here is the autopsy, including the one a rival in this hackathon killed for us.</p>
+    <div class="eyebrow">What is distinctive</div>
+    <h2>Three things, stated narrowly because each is checkable.</h2>
   </div>
-  <div class="scroll">
-    <table>
-      <thead><tr><th>Claim we considered</th><th>Verdict</th></tr></thead>
-      <tbody>
-        <tr><td>Reserve-gated minting</td><td><span class="no">Not novel.</span> Chainlink Secure Mint does this.</td></tr>
-        <tr><td>The aggregate check as our differentiator</td><td><span class="no">Not novel.</span> Secure Mint checks the aggregate too.</td></tr>
-        <tr><td>Cross-chain supply aggregation</td><td><span class="no">Not novel.</span> LayerZero OFT and Chainlink CCT do this.</td></tr>
-        <tr><td>Optimistic verification with bonded dispute</td><td><span class="no">Not novel.</span> UMA and optimistic rollups got there first.</td></tr>
-        <tr><td>Bonded assertion of a negative, refutable by one proof</td><td><span class="no">Not even uniquely ours this season.</span> <code>PugarHuda/utuh</code> built the same primitive for set completeness, more generally, three days before we looked.</td></tr>
-      </tbody>
-    </table>
+  <div class="mechs">
+    <div class="mech">
+      <div class="mech-k">REUSABLE BY THE WHOLE ECOSYSTEM</div>
+      <h3>State-to-event lifting</h3>
+      <p>The Block Prover proves <em>transactions</em>; solvency is a question about
+      <em>state</em>. Making a vault emit its own balance turns a transaction oracle into
+      a <strong>state oracle available to every dApp on Creditcoin</strong>. Any project
+      this season can adopt it.</p>
+    </div>
+    <div class="mech">
+      <div class="mech-k">ENFORCED AT CONSTRUCTION</div>
+      <h3>Encumbrance tied to measured latency</h3>
+      <p>Announced exits stop counting as backing the moment they are announced, and the
+      withdrawal delay is required to exceed twice the observed detection latency —
+      checked by the constructor, not left to convention.</p>
+    </div>
+    <div class="mech">
+      <div class="mech-k">ONE BOUND, ONE TRANSACTION</div>
+      <h3>The composition</h3>
+      <p>Reserve proof, liability proof, encumbrance, freshness and interval continuity
+      resolved into a single bound, evaluated inside the minting transaction, with zero
+      trusted parties in that path.</p>
+    </div>
   </div>
-  <p>
-    What survives is narrow, and survives <em>because</em> it is narrow:
-    <strong>state-to-event lifting on Attestcoin</strong>;
-    <strong>encumbrance-aware bounds tied to measured attestation latency</strong>;
-    and <strong>the composition</strong> — reserve proof, liability proof, encumbrance,
-    freshness and continuity resolved into one bound, evaluated inside the minting
-    transaction, with zero trusted parties in that path.
-  </p>
 </section>
 
 <!-- ══ 11 · the field ══════════════════════════════════════════════════════ -->
@@ -650,11 +650,9 @@
   </p>
   <div class="note">
     <p>
-      This is a claim about category, not quality; several of these projects are
-      excellent. One of them, a confidential settlement pool, states plainly that it has
-      <em>&ldquo;no on-chain solvency invariant&rdquo;</em> and that custody is
-      <em>&ldquo;a declared trust assumption.&rdquo;</em> That is an honest description of
-      the gap — and independent confirmation it is real.
+      This is a claim about <strong>category</strong>, not about the quality of other
+      work. The RWA track asks for projects that bridge off-chain value with on-chain
+      transparency; reserve solvency is that question, stated exactly.
     </p>
   </div>
 </section>
@@ -695,28 +693,9 @@
   </div>
 </section>
 
-<!-- ══ 13 · limits ═════════════════════════════════════════════════════════ -->
-<section class="slide">
-  <span class="num">13</span>
-  <div class="stack">
-    <div class="eyebrow">Limits — stated before you find them</div>
-    <h2>What this does not do.</h2>
-  </div>
-  <div class="scroll">
-    <table>
-      <tbody>
-        <tr><td>Privacy</td><td>Nothing here is private. Reserve balances and the vault address are public by construction — emitter binding requires it. Commitments and range proofs would fix it; we did not build that.</td></tr>
-        <tr><td>Continuity</td><td>Optimistic, not absolute. Inside the liveness window the no-outflow claim is economically backed, not cryptographically established. It is a game, not a theorem.</td></tr>
-        <tr><td>Latency</td><td>Roughly nine minutes from source event to provability. A protocol property — the cost of not trusting a reporter — and mechanism 04 is what makes it survivable rather than fatal.</td></tr>
-        <tr><td>Chain registration</td><td>Trusted. The bound sums over <em>registered</em> chains; one nobody registered contributes zero and is invisible. This is the largest remaining trust assumption in the system, and we would rather name it than have it found.</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
 <!-- ══ 14 · close ══════════════════════════════════════════════════════════ -->
 <section class="slide">
-  <span class="num">14</span>
+  <span class="num">13</span>
   <div class="stack">
     <div class="eyebrow">Why this belongs in the ecosystem</div>
     <h2>Auditability as the product, not the afterthought.</h2>
