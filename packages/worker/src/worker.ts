@@ -1,4 +1,4 @@
-import { Contract, JsonRpcProvider, Wallet, formatUnits } from "ethers";
+import { Contract, JsonRpcProvider, Network, Wallet, formatUnits } from "ethers";
 import {
   ASC_ABI,
   CHAIN_INFO_ABI,
@@ -51,8 +51,17 @@ async function main() {
   const vaultAddr = src.contracts.ReserveVault;
   const ascAddr = cc.contracts.MintBoundASC;
 
-  const sourceRpc = new JsonRpcProvider(cfg.sepoliaRpc);
-  const ccRpc = new JsonRpcProvider(cfg.creditcoinRpc);
+  // Both chain ids are pinned, so ethers never issues a detection round-trip. A
+  // single timed-out eth_chainId at startup previously killed the process outright:
+  // JsonRpcProvider auto-detects on first use and throws "failed to detect network"
+  // if that one request does not land. This worker is meant to run for days, and the
+  // deployment freezes when it stops, so a transient RPC hiccup must not be fatal.
+  const sourceRpc = new JsonRpcProvider(cfg.sepoliaRpc, Network.from(11155111), {
+    staticNetwork: true,
+  });
+  const ccRpc = new JsonRpcProvider(cfg.creditcoinRpc, Network.from(102031), {
+    staticNetwork: true,
+  });
   const wallet = new Wallet(cfg.workerKey, ccRpc);
   const sourceWallet = new Wallet(cfg.workerKey, sourceRpc);
 
@@ -216,7 +225,33 @@ async function report(asc: Contract, asset: string) {
   }
 }
 
-main().catch((e) => {
+/**
+ * Restart on any error that escapes the loops rather than exiting.
+ *
+ * Both snapshot and relay loops already swallow per-iteration failures. What was left
+ * unguarded was everything before them, and anything that escapes them entirely. The
+ * cost of the worker being down is not an error message: it is that the last proof
+ * ages past its staleness bound and minting freezes until someone notices.
+ */
+async function supervise() {
+  let attempt = 0;
+  for (;;) {
+    try {
+      await main();
+      return; // clean shutdown, e.g. SIGINT
+    } catch (e: any) {
+      attempt++;
+      const wait = Math.min(60_000, 5_000 * attempt);
+      console.error(
+        `[supervisor] worker exited: ${e?.shortMessage ?? e?.message ?? e}\n` +
+          `[supervisor] restarting in ${wait / 1000}s (attempt ${attempt})`,
+      );
+      await new Promise((r) => setTimeout(r, wait));
+    }
+  }
+}
+
+supervise().catch((e) => {
   console.error(e);
   process.exitCode = 1;
 });

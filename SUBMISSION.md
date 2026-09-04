@@ -215,7 +215,7 @@ infrastructure.
 Under 400k for cross-chain proof verification *plus* the full aggregate invariant *plus*
 the mint.
 
-**Test surface:** 124 unit tests · 7 invariants × 256 randomised runs · 13 live
+**Test surface:** 126 unit tests · 7 invariants × 256 randomised runs · 13 live
 infrastructure checks · 6/6 live attacks blocked · all 10 contracts verified on-explorer.
 
 ---
@@ -294,21 +294,23 @@ trusted parties in that path.
 ## Where this sits in the field
 
 We surveyed the public repositories built against the Attestcoin Protocol this season
-— roughly 80 of them — rather than guessing. They cluster tightly:
+— 120 of them as of 4 September — rather than guessing. They cluster tightly:
 
 | What people built | Roughly |
 |---|---|
-| Credit scoring and portable reputation | ~15 |
-| Settlement and payment verification | ~10 |
-| Monitoring, alerting, agents | ~8 |
-| **Reserve solvency** | **1** |
+| Credit scoring and portable reputation | ~20 |
+| Settlement and payment verification | ~15 |
+| Monitoring, alerting, autonomous agents | ~10 |
+| Prediction, gaming and other | ~15 |
 
-Everyone else is proving that an **event happened** — a payment settled, a loan was
-repaid, a delivery occurred — and then acting on it. MintBound proves **state**, and
-enforces a balance-sheet invariant on what it proves.
+The overwhelming majority prove that an **event happened** — a payment settled, a
+loan was repaid, a delivery occurred — and then act on it. That is what the Block
+Prover is built for, and it is the natural first thing to build on it.
 
-This is a claim about **category**, not about the quality of other work. The question
-"is the money still there?" is being asked once in this hackathon.
+MintBound proves **state**, and enforces a balance-sheet invariant on what it proves.
+Reserve solvency is a question about a *balance*, not an event, and answering it required
+making a balance provable in the first place — which is the pattern described above,
+and the reason this project exists.
 
 The RWA track asks for work that bridges off-chain value with on-chain transparency.
 Reserve solvency is that question, stated exactly.

@@ -391,6 +391,58 @@ describe("SolvencyContinuity — interval proof of reserve", () => {
       await expect(cont.settle(id)).to.be.revertedWithCustomError(cont, "StillLive");
     });
 
+    it("fails loudly when the bond cannot be returned on settlement", async () => {
+      // A claimant may be a multisig or a vault whose fallback reverts. The contract
+      // must not mark the claim settled while the money stayed put — a claim recorded
+      // as settled with the bond still held is a silent accounting error.
+      const rejecter = await ethers.deployContract("RejectsPayment");
+      const data = cont.interface.encodeFunctionData("assertNoOutflow", [assetAddr, A, B]);
+      const tx = await rejecter.forward(await cont.getAddress(), data, MIN_BOND, {
+        value: MIN_BOND,
+      });
+      // The event is emitted by `cont`, not by the sender, so ethers cannot attach a
+      // fragment to it from the receipt alone. Decode it with the emitter's interface.
+      const rc = await tx.wait();
+      const parsed = rc.logs
+        .map((l: any) => {
+          try {
+            return cont.interface.parseLog(l);
+          } catch {
+            return null;
+          }
+        })
+        .find((l: any) => l?.name === "ContinuityAsserted");
+      const id = parsed!.args.claimId;
+
+      await ethers.provider.send("evm_increaseTime", [Number(LIVENESS) + 1]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(cont.settle(id)).to.be.revertedWithCustomError(
+        cont,
+        "BondTransferFailed",
+      );
+
+      // And the claim is still open, not half-closed.
+      expect((await cont.claims(id)).settled).to.equal(false);
+    });
+
+    it("fails loudly when the seized bond cannot be paid to the challenger", async () => {
+      const id = await claimIdFrom(await assertInterval());
+
+      const rejecter = await ethers.deployContract("RejectsPayment");
+      const data = cont.interface.encodeFunctionData("disprove", [
+        id,
+        outflowQuery(A + 250n),
+      ]);
+
+      await expect(
+        rejecter.forward(await cont.getAddress(), data, 0),
+      ).to.be.revertedWithCustomError(cont, "BondTransferFailed");
+
+      // The claim must remain refutable by someone who can actually be paid.
+      expect((await cont.claims(id)).disproven).to.equal(false);
+    });
+
     it("refuses to seize a bond over an outflow from outside the claimed interval", async () => {
       // A transfer outside [from, to] says nothing about the interval under claim.
       const id = await claimIdFrom(await assertInterval());
