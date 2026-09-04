@@ -21,12 +21,22 @@ npm login
 npm run publish:cli
 ```
 
+You need a free npm account. The package is unscoped, so it needs no organisation.
+
+**On Windows PowerShell**, run each line separately — PowerShell 5.1 does not accept
+`&&` as a separator and will fail to parse it. Every multi-line block in this document
+is written one command per line for that reason.
+
 Then confirm it works the way a stranger will experience it — from a directory
 that is **not** this repository, so nothing local is picked up:
 
 ```bash
-cd /tmp && npx mintbound-cli claims
+cd ..
+npx mintbound-cli claims
 ```
+
+Run it from anywhere that is not this repository, so the local `deployments/` files are
+not picked up and you see exactly what a stranger sees.
 
 Notes:
 
@@ -49,6 +59,8 @@ npm i -g vercel
 cd packages/dashboard
 vercel --prod
 ```
+
+One command per line, again for PowerShell.
 
 `vercel.json` is already configured. Set these in the Vercel project's environment
 variables — both are public RPC endpoints, and neither is a secret:

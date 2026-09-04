@@ -20,7 +20,12 @@ npx mintbound-cli verify --source-tx 0x...   # walk one transaction through the 
 
 > **If `npx` reports the package is not found**, it has not been published yet.
 > Everything above also runs straight from a clone, with no publish step:
-> `git clone https://github.com/Lawalgiyath/MintGuard && cd MintGuard && npm install && npm run claims`
+> ```
+> git clone https://github.com/Lawalgiyath/MintGuard
+> cd MintGuard
+> npm install
+> npm run claims
+> ```
 
 These work because the Proof Builder is a read API and the guard's entry points are
 reachable by `eth_call`. Verification is a spectator sport here by design.

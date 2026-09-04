@@ -262,7 +262,12 @@ npx mintbound-cli verify --source-tx 0x...
 
 > **If `npx` reports the package is not found**, it has not been published yet.
 > Everything above also runs straight from a clone, with no publish step:
-> `git clone https://github.com/Lawalgiyath/MintGuard && cd MintGuard && npm install && npm run claims`
+> ```
+> git clone https://github.com/Lawalgiyath/MintGuard
+> cd MintGuard
+> npm install
+> npm run claims
+> ```
 
 ```
 Assurance  90/100
