@@ -27,6 +27,42 @@ You need a free npm account. The package is unscoped, so it needs no organisatio
 `&&` as a separator and will fail to parse it. Every multi-line block in this document
 is written one command per line for that reason.
 
+### If publishing returns `E403 ... Two-factor authentication ... is required`
+
+npm requires a second factor to publish. Either pass a one-time code from your
+authenticator app:
+
+```bash
+npm publish -w mintbound-cli --access public --otp=123456
+```
+
+or create a granular access token at npmjs.com under **Access Tokens**, with
+**Read and write** permission and *bypass 2FA* enabled, then:
+
+```bash
+npm config set //registry.npmjs.org/:_authToken YOUR_TOKEN
+npm run publish:cli
+```
+
+### Confirming the package is correct before you publish
+
+You do not have to publish to find out whether it works. Pack it and install the
+tarball exactly as npm would:
+
+```bash
+cd packages/cli
+npm pack
+npm install -g ./mintbound-cli-0.1.0.tgz
+cd ..
+mintbound claims
+```
+
+If that prints the claims table from outside the repository, the published package
+will behave identically — same tarball, same contents. `npm publish` warns that it
+auto-corrected `bin` paths; that is npm normalising `./dist/index.js` to
+`dist/index.js`, and the entries survive. You can confirm with
+`tar -xzOf mintbound-cli-0.1.0.tgz package/package.json`.
+
 Then confirm it works the way a stranger will experience it — from a directory
 that is **not** this repository, so nothing local is picked up:
 
