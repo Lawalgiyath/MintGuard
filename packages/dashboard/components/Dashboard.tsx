@@ -6,6 +6,24 @@ import { ProofLedger, StatGrid, TrustPath } from "./Panels";
 import { Divergence } from "./Divergence";
 import { ThirtySeconds } from "./ThirtySeconds";
 import { buildActs, snapshotAt } from "@/lib/simulator";
+/** Summary of genuinely captured proof material, served by /api/replay. */
+interface ReplayEntry {
+  txHash: string;
+  label: string;
+  capturedAt: string;
+  headerNumber: number;
+  txIndex: number;
+  merkleRoot: string;
+  siblings: number;
+  continuityRoots: number;
+}
+
+interface ReplayFeed {
+  available: boolean;
+  total: number;
+  entries: ReplayEntry[];
+}
+
 import {
   EMPTY_STATE,
   buildTrustPath,
@@ -68,10 +86,29 @@ export function Dashboard() {
   const [live, setLive] = useState<DashboardSnapshot | null>(null);
   const [liveError, setLiveError] = useState<string | null>(null);
   const [act, setAct] = useState(0);
+  const [replay, setReplay] = useState<ReplayFeed | null>(null);
   const [autoplay, setAutoplay] = useState(false);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const acts = useMemo(() => buildActs(), []);
+
+  // The capture bundle is genuine proof material recorded by the worker during real
+  // testnet runs. Fetched once, on demand, because most visits never open REPLAY.
+  useEffect(() => {
+    if (mode !== "replay" || replay) return;
+    let cancelled = false;
+    fetch("/api/replay", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled) setReplay(d as ReplayFeed);
+      })
+      .catch(() => {
+        if (!cancelled) setReplay({ available: false, total: 0, entries: [] });
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [mode, replay]);
 
   // ── LIVE polling ─────────────────────────────────────────────────────────
   const poll = useCallback(async () => {
@@ -134,14 +171,34 @@ export function Dashboard() {
     if (mode === "simulated") return snapshotAt(acts, act);
     if (mode === "live" && live) return live;
     if (mode === "replay") {
-      // Replay reuses the scripted beats but marks provenance as genuine captured
-      // proof material. Without a bundle on disk it degrades to the same beats,
-      // labelled honestly rather than dressed up as chain data.
+      // The balance-sheet progression comes from the scenario engine, because the
+      // capture bundle records proofs rather than state. The PROOF LEDGER below is
+      // the real thing: every hash, height and Merkle root was captured from a live
+      // testnet run and resolves on Etherscan. The notice above the instrument says
+      // exactly that, because a viewer cannot tell the two apart by looking.
       const s = snapshotAt(acts, act);
+      const captured = replay?.entries ?? [];
+      if (captured.length === 0) {
+        return { ...s, mode: "replay", ledger: [] };
+      }
       return {
         ...s,
         mode: "replay",
-        ledger: s.ledger.map((e) => ({ ...e, provenance: "replay" as const })),
+        ledger: captured.map((e) => ({
+          id: e.txHash,
+          at: Date.parse(e.capturedAt) || Date.now(),
+          kind: e.label === "snapshot" ? ("ReserveProven" as const) : ("Minted" as const),
+          title:
+            e.label === "snapshot"
+              ? "Reserve snapshot proven"
+              : "Lock proven, mint authorised",
+          detail:
+            `Sepolia block ${e.headerNumber.toLocaleString()}, tx index ${e.txIndex} · ` +
+            `${e.siblings} Merkle siblings, ${e.continuityRoots} continuity roots`,
+          provenance: "replay" as const,
+          txHash: e.txHash,
+          explorerUrl: `https://sepolia.etherscan.io/tx/${e.txHash}`,
+        })),
       };
     }
     return {
@@ -154,7 +211,7 @@ export function Dashboard() {
       context: {},
       error: liveError ?? undefined,
     };
-  }, [mode, act, acts, live, liveError]);
+  }, [mode, act, acts, live, liveError, replay]);
 
   const scripted = mode === "simulated" || mode === "replay";
   const current = acts[act]!;
@@ -246,9 +303,23 @@ export function Dashboard() {
 
         {mode === "replay" && (
           <div className="notice" role="status" style={{ borderColor: "var(--pending)" }}>
-            <b style={{ color: "var(--pending)" }}>REPLAY.</b> Genuine proof material captured
-            from a real testnet run, replayed at speed. The cryptography is real; only the timing
-            is compressed.
+            <b style={{ color: "var(--pending)" }}>REPLAY.</b>{" "}
+            {replay?.available === false ? (
+              <>
+                No capture bundle is available in this deployment, so there is nothing
+                genuine to replay and the proof ledger is empty rather than filled with
+                stand-ins.
+              </>
+            ) : (
+              <>
+                The <b>proof ledger</b> below is real: {replay?.total ?? ""} proofs captured
+                by the worker during live testnet runs, every hash and Merkle root checkable
+                on Etherscan. Creditcoin attests Sepolia blocks about nine minutes behind the
+                tip, so replaying them is how the cryptography can be shown without the wait.
+                The balance-sheet figures alongside come from the scenario engine, because the
+                bundle records proofs rather than state.
+              </>
+            )}
           </div>
         )}
 

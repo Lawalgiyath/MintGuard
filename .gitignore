@@ -15,3 +15,5 @@ deployments/*.local.json
 # Build artifacts
 *.tsbuildinfo
 *.tgz
+
+.vercel

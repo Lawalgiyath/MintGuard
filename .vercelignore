@@ -1,0 +1,7 @@
+node_modules
+packages/contracts
+packages/worker
+packages/cli
+.env
+*.log
+docs
