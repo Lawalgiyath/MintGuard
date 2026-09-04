@@ -43,7 +43,7 @@ CHAIN_INFO = ChainInfoLib.get();                     // 0x0FD3
 npm install
 cp .env.example .env          # DEPLOYER_PRIVATE_KEY, WORKER_PRIVATE_KEY
 
-npm run test:contracts        # 118 unit tests
+npm run test:contracts        # 124 unit tests
 npm run test:invariant        # 7 stateful invariants, 256 randomised runs each
 npm run verify:live           # 13 checks against live CC3 infrastructure — needs no funds
 

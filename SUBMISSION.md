@@ -215,7 +215,7 @@ infrastructure.
 Under 400k for cross-chain proof verification *plus* the full aggregate invariant *plus*
 the mint.
 
-**Test surface:** 118 unit tests · 7 invariants × 256 randomised runs · 13 live
+**Test surface:** 124 unit tests · 7 invariants × 256 randomised runs · 13 live
 infrastructure checks · 6/6 live attacks blocked · all 10 contracts verified on-explorer.
 
 ---

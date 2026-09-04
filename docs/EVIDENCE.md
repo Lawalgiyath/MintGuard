@@ -28,7 +28,7 @@ reachable by `eth_call`. Verification is a spectator sport here by design.
 From a clone:
 
 ```bash
-npm run test:contracts      # 118 unit tests
+npm run test:contracts      # 124 unit tests
 npm run test:invariant      # 7 invariants under randomised fuzzing
 npm run verify:live         # 13 checks against live CC3 infrastructure
 npm run verify:source       # republish source for every deployed contract

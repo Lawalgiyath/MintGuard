@@ -338,4 +338,66 @@ describe("SolvencyContinuity — interval proof of reserve", () => {
       expect(await cont.isContinuouslyProven(assetAddr, A)).to.equal(true);
     });
   });
+
+  // ────────────────────────────────────────────────────────────────────
+  // The refusal paths. A dispute mechanism is only as good as what it declines to do:
+  // paying a bond twice, or finalising a claim nobody had the chance to refute, would
+  // each turn the bond from a deterrent into a subsidy.
+  describe("what the dispute mechanism refuses", () => {
+    const NO_SUCH_CLAIM = "0x" + "ab".repeat(32);
+
+    const settleWindowElapsed = async () => {
+      await ethers.provider.send("evm_increaseTime", [Number(LIVENESS) + 1]);
+      await ethers.provider.send("evm_mine", []);
+    };
+
+    it("refuses to refute a claim that does not exist", async () => {
+      await expect(
+        cont.connect(watcher).disprove(NO_SUCH_CLAIM, outflowQuery(A + 250n)),
+      ).to.be.revertedWithCustomError(cont, "UnknownClaim");
+    });
+
+    it("refuses to settle a claim that does not exist", async () => {
+      await expect(cont.settle(NO_SUCH_CLAIM)).to.be.revertedWithCustomError(
+        cont,
+        "UnknownClaim",
+      );
+    });
+
+    it("refuses to refute a claim that has already settled", async () => {
+      // Otherwise a challenger could seize a bond that was already returned, and the
+      // contract would pay out twice for one interval.
+      const id = await claimIdFrom(await assertInterval());
+      await settleWindowElapsed();
+      await (await cont.settle(id)).wait();
+
+      await expect(
+        cont.connect(watcher).disprove(id, outflowQuery(A + 250n)),
+      ).to.be.revertedWithCustomError(cont, "ClaimClosed");
+    });
+
+    it("refuses to settle the same claim twice", async () => {
+      const id = await claimIdFrom(await assertInterval());
+      await settleWindowElapsed();
+      await (await cont.settle(id)).wait();
+
+      await expect(cont.settle(id)).to.be.revertedWithCustomError(cont, "ClaimClosed");
+    });
+
+    it("refuses to settle before the refutation window closes", async () => {
+      // The window is the entire guarantee. Settling early finalises a claim that
+      // nobody has yet had the opportunity to refute.
+      const id = await claimIdFrom(await assertInterval());
+      await expect(cont.settle(id)).to.be.revertedWithCustomError(cont, "StillLive");
+    });
+
+    it("refuses to seize a bond over an outflow from outside the claimed interval", async () => {
+      // A transfer outside [from, to] says nothing about the interval under claim.
+      const id = await claimIdFrom(await assertInterval());
+      await expect(
+        cont.connect(watcher).disprove(id, outflowQuery(B + 100n)),
+      ).to.be.revertedWithCustomError(cont, "HeightOutsideInterval");
+    });
+  });
+
 });
