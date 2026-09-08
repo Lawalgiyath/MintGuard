@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>MintBound — demo reel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  /* ─────────────────────────────────────────────────────────────────────────
+     A recording surface, not a page anyone browses to.
+
+     Playwright records the browser viewport, so anything that must appear in the
+     video has to live inside one page. The dashboard is embedded live in an
+     iframe rather than screenshotted, and the terminal panes replay output that
+     was captured by actually running the commands — the text is not typed out
+     by hand anywhere in this file.
+     ───────────────────────────────────────────────────────────────────────── */
+
+  :root {
+    --ground: #0A0A0A;
+    --ink:    #F5F5F2;
+    --ink-2:  #9CA0A8;
+    --ink-3:  #676B75;
+    --rule:   #1E2025;
+    --proof:  #35D39A;
+    --breach: #E8564B;
+    --sans: "Inter Tight", -apple-system, "Segoe UI", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0; padding: 0;
+    width: 1920px; height: 1080px;
+    overflow: hidden;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+  }
+
+  .stage { position: relative; width: 1920px; height: 1080px; }
+
+  .scene {
+    position: absolute; inset: 0;
+    opacity: 0;
+    transition: opacity 420ms ease;
+    pointer-events: none;
+  }
+  /* The active scene must accept clicks: the dashboard scene is driven for real,
+     not simulated, so Playwright has to be able to reach the button inside it. */
+  .scene[data-on="1"] { opacity: 1; pointer-events: auto; }
+
+  /* ── the live dashboard, embedded ─────────────────────────────────────── */
+  iframe {
+    width: 1920px; height: 1080px;
+    border: 0;
+    display: block;
+  }
+
+  /* ── terminal ─────────────────────────────────────────────────────────── */
+  .term-scene {
+    background: #060607;
+    padding: 54px 90px 190px;
+  }
+  .term-bar {
+    display: flex; align-items: center; gap: 9px;
+    margin-bottom: 22px;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; background: #2E3138; }
+  .term-title {
+    margin-left: 14px;
+    font-family: var(--mono); font-size: 13px; color: var(--ink-3);
+    letter-spacing: 0.05em;
+  }
+  .term {
+    font-family: var(--mono);
+    font-size: 19px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    color: var(--ink-2);
+    height: 780px;
+    overflow: hidden;
+  }
+  .term .prompt { color: var(--ink); }
+  .term .ok  { color: var(--proof); }
+  .term .no  { color: var(--breach); }
+  .term .hd  { color: var(--ink); font-weight: 500; }
+  .cursor {
+    display: inline-block; width: 10px; height: 21px;
+    background: var(--proof); vertical-align: text-bottom;
+    animation: blink 1s steps(2, start) infinite;
+  }
+  @keyframes blink { to { visibility: hidden; } }
+
+  /* ── title card ───────────────────────────────────────────────────────── */
+  .card {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; gap: 26px;
+    background: var(--ground);
+  }
+  .card h1 {
+    margin: 0;
+    font-size: 108px; font-weight: 700; letter-spacing: -0.035em; line-height: 1;
+  }
+  .card .mark { font-family: var(--mono); }
+  .card .mark em { font-style: normal; color: var(--proof); }
+  .card p { margin: 0; font-size: 30px; color: var(--ink-2); max-width: 22ch; line-height: 1.35; }
+  .card .meta {
+    font-family: var(--mono); font-size: 15px; color: var(--ink-3);
+    letter-spacing: 0.13em; text-transform: uppercase;
+  }
+
+  /* ── burned-in subtitles ──────────────────────────────────────────────── */
+  .subs {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 40px 140px 54px;
+    background: linear-gradient(to top, rgba(6,6,7,0.97) 55%, rgba(6,6,7,0));
+    z-index: 50;
+    pointer-events: none;
+  }
+  .subs p {
+    margin: 0 auto;
+    max-width: 1500px;
+    text-align: center;
+    font-size: 34px;
+    line-height: 1.34;
+    font-weight: 500;
+    color: #fff;
+    text-shadow: 0 2px 14px rgba(0,0,0,0.9);
+    opacity: 0;
+    transition: opacity 220ms ease;
+  }
+  .subs p[data-on="1"] { opacity: 1; }
+  .subs b { color: var(--proof); font-weight: 600; }
+  .subs i { font-style: normal; color: var(--breach); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="stage">
+
+  <!-- 1 · opening card -->
+  <section class="scene card" id="s-open">
+    <div class="meta">Creditcoin CC3 &nbsp;·&nbsp; Attestcoin Protocol &nbsp;·&nbsp; RWA</div>
+    <h1 class="mark">Mint<em>Bound</em></h1>
+    <p>Proof, not promise.</p>
+  </section>
+
+  <!-- 2 · the live dashboard -->
+  <section class="scene" id="s-dash">
+    <iframe id="dash" src="/" title="MintBound dashboard"></iframe>
+  </section>
+
+  <!-- 3 · terminal -->
+  <section class="scene term-scene" id="s-term">
+    <div class="term-bar">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="term-title" id="term-title">powershell</span>
+    </div>
+    <div class="term" id="term"></div>
+  </section>
+
+  <!-- 4 · closing card -->
+  <section class="scene card" id="s-close">
+    <h1 class="mark">Mint<em>Bound</em></h1>
+    <p style="max-width:30ch">Increasing liabilities requires a fresh proof.<br>Decreasing them requires nothing.</p>
+    <div class="meta">github.com/Lawalgiyath/MintGuard &nbsp;·&nbsp; npx mintbound-cli claims</div>
+  </section>
+
+  <div class="subs"><p id="sub"></p></div>
+</div>
+
+<script>
+  // The reel is driven entirely from Playwright so that recording and timing
+  // cannot drift apart. Everything below is a primitive the driver calls.
+  const scenes = {
+    open:  document.getElementById("s-open"),
+    dash:  document.getElementById("s-dash"),
+    term:  document.getElementById("s-term"),
+    close: document.getElementById("s-close"),
+  };
+  const subEl   = document.getElementById("sub");
+  const termEl  = document.getElementById("term");
+  const titleEl = document.getElementById("term-title");
+
+  window.reel = {
+    scene(name) {
+      for (const [k, el] of Object.entries(scenes)) {
+        el.dataset.on = k === name ? "1" : "0";
+      }
+    },
+
+    say(html) {
+      subEl.dataset.on = "0";
+      setTimeout(() => {
+        subEl.innerHTML = html;
+        subEl.dataset.on = "1";
+      }, 200);
+    },
+
+    clearSub() { subEl.dataset.on = "0"; },
+
+    termTitle(t) { titleEl.textContent = t; },
+
+    termReset() { termEl.innerHTML = ""; },
+
+    /** Colourise captured CLI output the way the terminal itself does. */
+    _line(raw) {
+      const esc = raw
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+      if (/^\s*✓/.test(raw))  return '<span class="ok">' + esc + "</span>";
+      if (/^\s*✗/.test(raw))  return '<span class="no">' + esc + "</span>";
+      if (/^\s*\?/.test(raw)) return '<span class="no">' + esc + "</span>";
+      if (/claims verified|blocked —|minting/.test(raw))
+        return '<span class="hd">' + esc + "</span>";
+      return esc;
+    },
+
+    /** Type a command at a prompt, character by character. */
+    async typeCmd(cmd, msPerChar = 55) {
+      const line = document.createElement("div");
+      line.className = "prompt";
+      termEl.appendChild(line);
+      const shown = "PS C:\\> ";
+      for (let i = 0; i <= cmd.length; i++) {
+        line.innerHTML = shown + cmd.slice(0, i) + '<span class="cursor"></span>';
+        await new Promise((r) => setTimeout(r, msPerChar));
+      }
+      line.innerHTML = shown + cmd;
+    },
+
+    /** Reveal captured output a line at a time, scrolled so the tail stays visible. */
+    async emit(lines, msPerLine = 90) {
+      for (const raw of lines) {
+        const d = document.createElement("div");
+        d.innerHTML = this._line(raw) || "&nbsp;";
+        termEl.appendChild(d);
+        // Keep the newest content on screen without a visible scrollbar.
+        while (termEl.scrollHeight > termEl.clientHeight && termEl.firstChild) {
+          termEl.removeChild(termEl.firstChild);
+        }
+        await new Promise((r) => setTimeout(r, msPerLine));
+      }
+    },
+  };
+
+  window.reel.scene("open");
+</script>
+</body>
+</html>
