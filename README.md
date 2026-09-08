@@ -13,6 +13,35 @@ real-world assets on Creditcoin.
 
 ---
 
+<div align="center">
+
+### Check every claim yourself, in ten seconds
+
+</div>
+
+```bash
+npx mintbound-cli claims
+```
+
+No key. No clone. No setup. The Attestcoin Proof Builder is a read API and the guard's
+entry points are reachable by `eth_call`, so a stranger can settle every claim on this
+page against live chain state without being trusted with anything.
+
+| | |
+|---|---|
+| **Live** | 10 contracts on Creditcoin CC3 and Ethereum Sepolia. Every one publishes verified source. |
+| **Self&#8209;auditing** | `11/11` claims resolved against live chain state, including the ones that are inconvenient for us |
+| **Attacked** | `6/6` documented attacks blocked by real calls against the deployed contract |
+| **Tested** | 126 unit tests · 7 invariants under randomised fuzzing · 85% line coverage |
+| **Measured** | `382,578` gas for cross&#8209;chain proof verification, the full solvency invariant, and the mint |
+| **Trusted parties** | `0` |
+
+That last row is the whole project. `trustedParties(asset)` is a real function on a real
+contract, and it returns zero because no off&#8209;chain party sits anywhere in the mint
+path.
+
+---
+
 ## The one sentence
 
 > **Every reserve system in the world asks someone to *report* whether the money is

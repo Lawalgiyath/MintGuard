@@ -40,11 +40,18 @@ MintBound answers that with a number rather than a paragraph: **`trustedParties(
 `0`** — a value the contract publishes, meaning zero off-chain parties must be honest for
 the reserve figure to hold. No other reserve system publishes that number at all.
 
-Two further things are unusual, and both are checkable in under a minute. It is the only
-project in this hackathon that verifies **reserves** rather than events. And it is the
-only one that audits itself: `npx mintbound-cli claims` re-checks **every factual claim
-on this page** against live chain state and returns a non-zero exit code if any of them
-fails.
+Two further things are unusual, and both are checkable in under a minute.
+
+It verifies **reserves, not events**. Almost everything built on a transaction-proof
+primitive proves that something *happened*: a payment settled, a loan was repaid, a
+delivery occurred. Solvency is a question about a *balance*, which is not an event at
+all, and answering it meant first making a balance provable. That is a harder question
+and a different one.
+
+And it **audits itself**. `npx mintbound-cli claims` re-checks every factual claim on
+this page against live chain state and returns a non-zero exit code if any of them fails.
+You are not asked to trust a single sentence here; you are invited to run the command
+that would expose it.
 
 ---
 
