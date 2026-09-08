@@ -79,9 +79,9 @@ announcing an exit and the reserve **de-rating before the money can move**.
 
 ---
 
-## Integration, for the rest of this hackathon
+## Integration
 
-MintBound is the layer under the field, not a competitor to it. Every one of these is two
+MintBound is a layer other products sit on, not a competitor to them. Adopting it is two
 lines:
 
 ```solidity
@@ -89,29 +89,15 @@ ISolvencyOracle o = ISolvencyOracle(MINTBOUND);
 require(o.isSolvent(asset), "collateral not proven solvent");
 ```
 
-| Submission | What it gains |
-|---|---|
-| **SpaceFinance** — lends against locked ETH | Sees the collateral *leave*, not just arrive |
-| **ProofYield** — ERC-4626 RWA vault | Refuses to raise share price when backing is unproven |
-| **AttestDesk / LedgerLine** — credit desks | Collateral graded `trustedParties = 0` before advancing |
-| **Spark / CreditPass** — credit for the unbanked | A score is worthless if the collateral behind the loan is not there |
+Any protocol that advances value against collateral held somewhere else gains the same
+thing from those two lines: it stops relying on the collateral having been there at some
+earlier moment, and starts requiring proof that it is there now. A lending desk sees the
+collateral leave rather than only seeing it arrive. A tokenised vault refuses to raise
+its share price while the backing is unproven. A credit product can grade its collateral
+`trustedParties = 0` before it advances anything.
 
-And for anyone already on Chainlink PoR, it is not even two lines — it is one address.
-
----
-
-## What not to say
-
-- ❌ "We invented proof-of-reserve minting." Chainlink got there first.
-- ❌ "We invented cross-chain supply accounting." OFT and CCT got there first.
-- ❌ "Nobody has done optimistic verification." UMA and rollups got there first.
-- ❌ Anything beginning "the first ever". Three novelty claims have already died in this
-  project; the surviving ones are narrow and specific, and that is *why* they survive.
-
-Say what is checkable in ten seconds. A claim a judge can verify beats a bigger one they
-can rebut.
-
----
+For anyone already consuming a Chainlink proof of reserve feed it is not even two lines.
+It is one address.
 
 ## The close
 
