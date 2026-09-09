@@ -353,6 +353,55 @@ that any other project in this hackathon can reuse.
 
 ---
 
+## Vision
+
+*(Paste-ready for the "Vision of this project" field.)*
+
+Every tokenized asset is a claim on something that lives somewhere else. The chain
+issuing the token cannot see the thing backing it, so it asks. Today the answer comes
+back as a report: a number, from a party you have to trust, about a moment that has
+already passed. Everything downstream of that answer inherits its weakness, and the
+people who find out last are always the holders.
+
+MintBound exists to replace that answer with a proof, and to make proving it the ordinary
+way to issue a backed asset rather than the expensive way.
+
+**The near term is depth on one chain.** Reserve proofs, liability proofs across every
+chain a wrapped asset lives on, encumbrance that removes announced exits from backing
+before the money can move, and freshness read from the chain itself. All of that is
+built, live, and checkable today. What follows is hardening it toward production: an
+audit, more source chains as Attestcoin adds them, and permissionless registration so
+that adding a chain to the liability set stops being a trusted operation.
+
+**The medium term is that other people build on it.** The reusable idea in this project
+is not the guard, it is state to event lifting: the Block Prover proves transactions, and
+by making a contract emit its own state into a log, any foreign balance becomes provable.
+That turns a transaction oracle into a state oracle for every dApp on Creditcoin. A
+lending market can require that its collateral is proven present rather than reported
+present. A tokenized fund can refuse to move its share price while backing is unproven. A
+credit desk can grade its collateral by how many parties it has to trust, because
+MintBound publishes that number. None of them need to understand Merkle proofs to get
+this. They need one interface and one address.
+
+**The long term is that auditability stops being a document.** Today assurance is a PDF
+that arrives monthly and describes a moment that has passed. The end state is that a
+wrapped asset on Creditcoin cannot quietly become unbacked, because the chain finds out
+before the holders do, and minting stops on its own without anyone deciding to stop it.
+
+This matters most where it is hardest to get any other kind of assurance. Where a local
+auditor's signature carries little weight and cross border recourse is theoretical, a
+monthly attestation is not assurance at all. Cryptographic proof is the only form of
+assurance that travels unchanged, and it reads identically for a lender in Lagos and a
+lender in London. That is the same problem Creditcoin was built to address, one layer
+down: not whether credit can reach people, but whether the collateral behind it is really
+there.
+
+Every proof consumed is Creditcoin gas spent, and every asset that adopts this becomes a
+recurring reason for the network to exist. The ecosystem gets safer and busier at the same
+time, which is the only kind of infrastructure worth owning.
+
+---
+
 ## Repository
 
 - [`docs/deck.html`](docs/deck.html) — the submission deck, 13 slides, prints to PDF
